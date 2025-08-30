@@ -77,19 +77,19 @@ const Landing = () => {
           <div className="text-center p-6 transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 hover:shadow-xl rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800" style={{transitionDelay: '0.1s'}}>
             <Users className="w-12 h-12 text-blue-600 mx-auto mb-4 animate-bounce" style={{animationDelay: '0.5s'}} />
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              Team Collaboration
+              Student for Student
             </h3>
             <p className="text-gray-600 dark:text-gray-300">
-              Form groups and bid together on larger projects
+              Students helping each other in needs
             </p>
           </div>
           <div className="text-center p-6 transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 hover:shadow-xl rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800" style={{transitionDelay: '0.2s'}}>
             <Zap className="w-12 h-12 text-blue-600 mx-auto mb-4 animate-bounce" style={{animationDelay: '1s'}} />
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              Real-time Chat
+              Connections
             </h3>
             <p className="text-gray-600 dark:text-gray-300">
-              Instant communication with project collaborators
+              Building connection with skilled students
             </p>
           </div>
         </div>

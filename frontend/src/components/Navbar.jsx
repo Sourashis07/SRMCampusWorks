@@ -18,7 +18,7 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = false }) => {
     <nav className="bg-white dark:bg-dark-nav shadow px-6 py-4">
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-8">
-          <Link to="/" className="text-xl font-bold text-gray-900 dark:text-white" style={{fontFamily: 'Lobster, cursive'}}>
+          <Link to="/" className="text-2xl font-bold text-gray-900 dark:text-white" style={{fontFamily: 'Lobster, cursive'}}>
             Campus Works
           </Link>
           {showTabs && (
