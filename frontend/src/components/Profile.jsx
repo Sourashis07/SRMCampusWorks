@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import Navbar from './Navbar';
+import { db } from '../config/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -22,22 +24,28 @@ const Profile = () => {
     }
   }, [user]);
 
-  const loadProfile = () => {
+  const loadProfile = async () => {
     if (!user) return;
-    const savedProfile = localStorage.getItem(`profile_${user.uid}`);
-    if (savedProfile) {
-      setProfile(JSON.parse(savedProfile));
-    } else {
-      setProfile({
-        name: user.displayName || '',
-        email: user.email || '',
-        department: '',
-        year: '',
-        skills: [],
-        bio: '',
-        phone: '',
-        portfolio: ''
-      });
+    try {
+      const docRef = doc(db, 'profiles', user.uid);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        setProfile(docSnap.data());
+      } else {
+        setProfile({
+          name: user.displayName || '',
+          email: user.email || '',
+          department: '',
+          year: '',
+          skills: [],
+          bio: '',
+          phone: '',
+          portfolio: ''
+        });
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
     }
   };
 
@@ -45,7 +53,7 @@ const Profile = () => {
     e.preventDefault();
     if (!user) return;
     try {
-      localStorage.setItem(`profile_${user.uid}`, JSON.stringify(profile));
+      await setDoc(doc(db, 'profiles', user.uid), profile);
       alert('Profile saved successfully!');
     } catch (error) {
       alert('Error saving profile');

@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { useCurrentUser } from '../hooks/useCurrentUser';
 import Navbar from './Navbar';
-import { api, API_ENDPOINTS } from '../config/api';
+import { db } from '../config/firebase';
+import { doc, getDoc, collection, addDoc, getDocs, query, where } from 'firebase/firestore';
 
 const TaskDetails = () => {
   const { id } = useParams();
   const { user } = useAuth();
-  const { currentUser, loading: userLoading } = useCurrentUser();
   const [task, setTask] = useState(null);
   const [bidAmount, setBidAmount] = useState('');
   const [bidProposal, setBidProposal] = useState('');
@@ -21,8 +20,20 @@ const TaskDetails = () => {
 
   const fetchTask = async () => {
     try {
-      const response = await api.get(`${API_ENDPOINTS.TASKS}/${id}`);
-      setTask(response.data);
+      const docRef = doc(db, 'tasks', id);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        const taskData = { id: docSnap.id, ...docSnap.data() };
+        
+        // Fetch bids for this task
+        const bidsQuery = query(collection(db, 'bids'), where('taskId', '==', id));
+        const bidsSnapshot = await getDocs(bidsQuery);
+        const bidsData = bidsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        taskData.bids = bidsData;
+        setTask(taskData);
+      }
     } catch (error) {
       console.error('Error fetching task:', error);
     }
@@ -40,17 +51,20 @@ const TaskDetails = () => {
   const handleBidSubmit = async (e) => {
     e.preventDefault();
     
-    if (!currentUser) {
-      alert('Please wait for user data to load');
+    if (!user) {
+      alert('Please log in to submit a bid');
       return;
     }
     
     try {
-      await api.post(API_ENDPOINTS.BIDS, {
+      await addDoc(collection(db, 'bids'), {
         taskId: id,
         amount: parseInt(bidAmount),
         proposal: bidProposal,
-        bidderId: currentUser.id
+        bidderId: user.uid,
+        bidderName: user.displayName || user.email,
+        status: 'PENDING',
+        createdAt: new Date()
       });
       setBidAmount('');
       setBidProposal('');
@@ -71,10 +85,10 @@ const TaskDetails = () => {
     }
   };
 
-  const isOwner = task?.posterId === currentUser?.id;
+  const isOwner = task?.posterId === user?.uid;
   const acceptedBid = task?.bids?.find(bid => bid.status === 'ACCEPTED');
 
-  if (!task || userLoading) return <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center"><div className="text-gray-900 dark:text-white">Loading...</div></div>;
+  if (!task) return <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center"><div className="text-gray-900 dark:text-white">Loading...</div></div>;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
@@ -102,7 +116,7 @@ const TaskDetails = () => {
             </div>
             <div>
               <span className="font-medium">Posted by: </span>
-              <span>{task.poster.name}</span>
+              <span>{task.posterName}</span>
             </div>
           </div>
 
@@ -116,7 +130,7 @@ const TaskDetails = () => {
                       to={`/profile/${bid.bidderId}`}
                       className="font-medium text-blue-600 hover:text-blue-800"
                     >
-                      {bid.bidder?.name || 'Anonymous'}
+                      {bid.bidderName || 'Anonymous'}
                     </Link>
                     <span className={`ml-2 px-2 py-1 rounded text-xs ${
                       bid.status === 'ACCEPTED' ? 'bg-green-100 text-green-800' :
@@ -158,9 +172,9 @@ const TaskDetails = () => {
               {isOwner ? 'Waiting for Submission' : 'Submit Your Work'}
             </h3>
             <p className="text-blue-700 dark:text-blue-200">
-              Bid accepted by {acceptedBid.bidder?.name} for ₹{acceptedBid.amount}
+              Bid accepted by {acceptedBid.bidderName} for ₹{acceptedBid.amount}
             </p>
-            {!isOwner && acceptedBid.bidderId === currentUser?.id && (
+            {!isOwner && acceptedBid.bidderId === user?.uid && (
               <Link
                 to={`/submit/${id}`}
                 className="mt-4 inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
@@ -226,7 +240,7 @@ const TaskDetails = () => {
               </div>
             )}
             
-            {!isOwner && submission.submitterId === currentUser?.id && (
+            {!isOwner && submission.submitterId === user?.uid && (
               <div className="text-green-700 dark:text-green-200">
                 ✓ Your work has been submitted. Waiting for payment from the task owner.
               </div>
