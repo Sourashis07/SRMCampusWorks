@@ -1,11 +1,41 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../context/ThemeContext';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Bell } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { db } from '../config/firebase';
+import { collection, query, where, onSnapshot, updateDoc, doc } from 'firebase/firestore';
 
 const Navbar = ({ activeTab, setActiveTab, showTabs = false }) => {
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    
+    const notificationsQuery = query(
+      collection(db, 'notifications'),
+      where('userId', '==', user.uid),
+      where('read', '==', false)
+    );
+    
+    const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+      const notifs = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate() || new Date()
+      }));
+      setNotifications(notifs);
+    });
+    
+    return () => unsubscribe();
+  }, [user]);
+
+  const markAsRead = async (notificationId) => {
+    await updateDoc(doc(db, 'notifications', notificationId), { read: true });
+  };
 
   const getUserName = () => {
     if (user?.displayName) {
@@ -67,6 +97,53 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = false }) => {
           )}
         </div>
         <div className="flex items-center space-x-4">
+          {/* Notification Bell */}
+          <div className="relative">
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="p-2 rounded-lg bg-gray-100 dark:bg-dark-card text-gray-600 dark:text-gray-300 relative"
+            >
+              <Bell size={18} />
+              {notifications.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {notifications.length}
+                </span>
+              )}
+            </button>
+            
+            {showNotifications && (
+              <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-dark-card border dark:border-gray-600 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
+                <div className="p-4 border-b dark:border-gray-600">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Notifications</h3>
+                </div>
+                {notifications.length === 0 ? (
+                  <div className="p-4 text-gray-500 dark:text-gray-400 text-center">
+                    No new notifications
+                  </div>
+                ) : (
+                  notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      className="p-4 border-b dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                      onClick={() => {
+                        markAsRead(notification.id);
+                        if (notification.taskId) {
+                          window.location.href = `/task/${notification.taskId}`;
+                        }
+                        setShowNotifications(false);
+                      }}
+                    >
+                      <p className="text-sm text-gray-900 dark:text-white">{notification.message}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {notification.createdAt.toLocaleString()}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+          
           <button
             onClick={toggleTheme}
             className="p-2 rounded-lg bg-gray-100 dark:bg-dark-card text-gray-600 dark:text-gray-300"

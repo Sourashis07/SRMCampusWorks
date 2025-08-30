@@ -83,6 +83,16 @@ const TaskDetails = () => {
         status: 'PENDING',
         createdAt: new Date()
       });
+      
+      // Create notification for task owner
+      await addDoc(collection(db, 'notifications'), {
+        userId: task.posterId,
+        taskId: id,
+        message: `New proposal received from ${user.displayName || user.email} for ₹${bidAmount}`,
+        type: 'NEW_PROPOSAL',
+        read: false,
+        createdAt: new Date()
+      });
       setBidAmount('');
       setBidProposal('');
       fetchProposals();
@@ -96,6 +106,20 @@ const TaskDetails = () => {
     try {
       const proposalRef = doc(db, 'proposals', proposalId);
       await updateDoc(proposalRef, { status });
+      
+      // Create notification for freelancer
+      const proposal = proposals.find(p => p.id === proposalId);
+      if (proposal) {
+        await addDoc(collection(db, 'notifications'), {
+          userId: proposal.bidderId,
+          taskId: id,
+          message: `Your proposal has been ${status.toLowerCase()} for "${task.title}"`,
+          type: status === 'ACCEPTED' ? 'PROPOSAL_ACCEPTED' : 'PROPOSAL_REJECTED',
+          read: false,
+          createdAt: new Date()
+        });
+      }
+      
       fetchProposals();
       alert(`Proposal ${status.toLowerCase()} successfully!`);
     } catch (error) {
@@ -208,11 +232,27 @@ const TaskDetails = () => {
               Proposal accepted by {acceptedProposal.bidderName} for ₹{acceptedProposal.amount}
             </p>
             {!isOwner && acceptedProposal.bidderId === user?.uid && (
+              <div className="mt-4 space-x-4">
+                <Link
+                  to={`/submit/${id}`}
+                  className="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+                >
+                  Submit Work
+                </Link>
+                <Link
+                  to={`/messages/${id}`}
+                  className="inline-block bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+                >
+                  Messages
+                </Link>
+              </div>
+            )}
+            {isOwner && (
               <Link
-                to={`/submit/${id}`}
-                className="mt-4 inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+                to={`/messages/${id}`}
+                className="mt-4 inline-block bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
               >
-                Submit Work
+                Messages
               </Link>
             )}
           </div>

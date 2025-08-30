@@ -9,6 +9,7 @@ import TaskDetails from './components/TaskDetails';
 import Profile from './components/Profile';
 import SubmissionForm from './components/SubmissionForm';
 import Payment from './components/Payment';
+import Messages from './components/Messages';
 import Chat from './components/Chat';
 
 function AppContent() {
@@ -53,6 +54,10 @@ function AppContent() {
         <Route 
           path="/payment/:taskId" 
           element={user ? <Payment /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/messages/:taskId" 
+          element={user ? <Messages /> : <Navigate to="/login" />} 
         />
         <Route 
           path="/chat/:taskId" 
