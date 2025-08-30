@@ -12,7 +12,8 @@ const TaskForm = () => {
     category: 'assignment',
     budgetMin: '',
     budgetMax: '',
-    deadline: ''
+    deadline: '',
+    fileLink: ''
   });
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -155,6 +156,23 @@ const TaskForm = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
               required
             />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              File Link (Optional)
+            </label>
+            <input
+              type="url"
+              name="fileLink"
+              value={formData.fileLink}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-dark-bg dark:text-white"
+              placeholder="https://drive.google.com/... or any file sharing link"
+            />
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Upload files to Google Drive/Dropbox and paste the link here if needed
+            </p>
           </div>
 
           <div className="flex space-x-4">

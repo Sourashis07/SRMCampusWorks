@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Navbar from './Navbar';
 import { db } from '../config/firebase';
-import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, where, doc, deleteDoc } from 'firebase/firestore';
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
@@ -69,6 +69,19 @@ const Dashboard = () => {
       setSubmissions(submissionsData);
     } catch (error) {
       console.error('Error loading submissions:', error);
+    }
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      try {
+        await deleteDoc(doc(db, 'tasks', taskId));
+        loadTasks();
+        alert('Task deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting task:', error);
+        alert('Error deleting task');
+      }
     }
   };
 
@@ -327,13 +340,10 @@ const Dashboard = () => {
                       
                       <div className="flex justify-between items-center">
                         <div className="flex flex-col">
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            {task.proposals?.length || 0} proposals
-                          </span>
                           {activeTab === 'proposals' && (() => {
                             const userProposal = proposals.find(p => p.taskId === task.id);
                             return userProposal ? (
-                              <span className={`text-xs px-2 py-1 rounded mt-1 ${
+                              <span className={`text-xs px-2 py-1 rounded ${
                                 userProposal.status === 'ACCEPTED' ? 'bg-green-100 text-green-800' :
                                 userProposal.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
                                 'bg-yellow-100 text-yellow-800'
@@ -343,12 +353,22 @@ const Dashboard = () => {
                             ) : null;
                           })()}
                         </div>
-                        <Link
-                          to={`/task/${task.id}`}
-                          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"
-                        >
-                          View Details
-                        </Link>
+                        <div className="flex space-x-2">
+                          <Link
+                            to={`/task/${task.id}`}
+                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"
+                          >
+                            View Details
+                          </Link>
+                          {activeTab === 'mytasks' && (
+                            <button
+                              onClick={() => handleDeleteTask(task.id)}
+                              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm"
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
