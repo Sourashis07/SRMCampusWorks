@@ -21,9 +21,9 @@ const Dashboard = () => {
     const newIndex = tabOrder.indexOf(newTab);
     
     if (newIndex > currentIndex) {
-      setSlideDirection('slide-right');
-    } else if (newIndex < currentIndex) {
       setSlideDirection('slide-left');
+    } else if (newIndex < currentIndex) {
+      setSlideDirection('slide-right');
     }
     
     setIsTransitioning(true);
@@ -223,9 +223,9 @@ const Dashboard = () => {
       <div className="container mx-auto px-6 py-8">
         <div className={`flex gap-8 transition-all duration-300 transform ${
           isTransitioning 
-            ? slideDirection === 'slide-right' 
-              ? 'translate-x-full opacity-0' 
-              : '-translate-x-full opacity-0'
+            ? slideDirection === 'slide-left' 
+              ? '-translate-x-full opacity-0' 
+              : 'translate-x-full opacity-0'
             : 'translate-x-0 opacity-100'
         }`}>
           {/* Sidebar Filters */}
