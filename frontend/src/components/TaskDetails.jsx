@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import Navbar from './Navbar';
-import axios from 'axios';
+import { api, API_ENDPOINTS } from '../config/api';
 
 const TaskDetails = () => {
   const { id } = useParams();
@@ -21,7 +21,7 @@ const TaskDetails = () => {
 
   const fetchTask = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/tasks/${id}`);
+      const response = await api.get(`${API_ENDPOINTS.TASKS}/${id}`);
       setTask(response.data);
     } catch (error) {
       console.error('Error fetching task:', error);
@@ -30,7 +30,7 @@ const TaskDetails = () => {
 
   const fetchSubmission = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/submissions/task/${id}`);
+      const response = await api.get(`${API_ENDPOINTS.SUBMISSIONS}/task/${id}`);
       setSubmission(response.data);
     } catch (error) {
       console.error('Error fetching submission:', error);
@@ -46,7 +46,7 @@ const TaskDetails = () => {
     }
     
     try {
-      await axios.post('http://localhost:5000/api/bids', {
+      await api.post(API_ENDPOINTS.BIDS, {
         taskId: id,
         amount: parseInt(bidAmount),
         proposal: bidProposal,
@@ -63,7 +63,7 @@ const TaskDetails = () => {
 
   const handleBidAction = async (bidId, status) => {
     try {
-      await axios.put(`http://localhost:5000/api/bids/${bidId}/status`, { status });
+      await api.put(`${API_ENDPOINTS.BIDS}/${bidId}/status`, { status });
       fetchTask();
       alert(`Bid ${status.toLowerCase()} successfully!`);
     } catch (error) {

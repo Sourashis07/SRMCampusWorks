@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import Navbar from './Navbar';
-import axios from 'axios';
+import { api, API_ENDPOINTS } from '../config/api';
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
@@ -24,7 +24,7 @@ const Dashboard = () => {
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/tasks');
+      const response = await api.get(API_ENDPOINTS.TASKS);
       setTasks(response.data);
     } catch (error) {
       console.error('Error fetching tasks:', error);

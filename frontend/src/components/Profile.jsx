@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import Navbar from './Navbar';
-import axios from 'axios';
+import { api, API_ENDPOINTS } from '../config/api';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -28,7 +28,7 @@ const Profile = () => {
   const fetchProfile = async () => {
     if (!currentUser) return;
     try {
-      const response = await axios.get(`http://localhost:5000/api/users/${currentUser.id}`);
+      const response = await api.get(`${API_ENDPOINTS.USERS}/${currentUser.id}`);
       setProfile(response.data);
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -39,7 +39,7 @@ const Profile = () => {
     e.preventDefault();
     if (!currentUser) return;
     try {
-      await axios.put(`http://localhost:5000/api/users/${currentUser.id}`, profile);
+      await api.put(`${API_ENDPOINTS.USERS}/${currentUser.id}`, profile);
       alert('Profile updated successfully!');
     } catch (error) {
       alert('Error updating profile');

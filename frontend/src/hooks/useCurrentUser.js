@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './useAuth';
-import axios from 'axios';
+import { api, API_ENDPOINTS } from '../config/api';
 
 export const useCurrentUser = () => {
   const { user } = useAuth();
@@ -20,7 +20,7 @@ export const useCurrentUser = () => {
     try {
       console.log('Syncing user:', { uid: user.uid, email: user.email, name: user.displayName });
       
-      const response = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/sync`, {
+      const response = await api.post(API_ENDPOINTS.AUTH_SYNC, {
         uid: user.uid,
         email: user.email,
         name: user.displayName

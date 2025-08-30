@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import Navbar from './Navbar';
-import axios from 'axios';
+import { api, API_ENDPOINTS } from '../config/api';
 
 const TaskForm = () => {
   const [formData, setFormData] = useState({
@@ -27,7 +27,7 @@ const TaskForm = () => {
     }
     
     try {
-      await axios.post('http://localhost:5000/api/tasks', {
+      await api.post(API_ENDPOINTS.TASKS, {
         ...formData,
         budgetMin: parseInt(formData.budgetMin),
         budgetMax: parseInt(formData.budgetMax),
