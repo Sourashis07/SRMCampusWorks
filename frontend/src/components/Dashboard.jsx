@@ -21,9 +21,9 @@ const Dashboard = () => {
     const newIndex = tabOrder.indexOf(newTab);
     
     if (newIndex > currentIndex) {
-      setSlideDirection('slide-left');
-    } else if (newIndex < currentIndex) {
       setSlideDirection('slide-right');
+    } else if (newIndex < currentIndex) {
+      setSlideDirection('slide-left');
     }
     
     setIsTransitioning(true);
@@ -221,10 +221,17 @@ const Dashboard = () => {
       <Navbar activeTab={activeTab} setActiveTab={handleTabChange} showTabs={true} />
 
       <div className="container mx-auto px-6 py-8">
-        <div className="flex gap-8">
+        <div className={`flex gap-8 transition-all duration-300 transform ${
+          isTransitioning 
+            ? slideDirection === 'slide-right' 
+              ? 'translate-x-full opacity-0' 
+              : '-translate-x-full opacity-0'
+            : 'translate-x-0 opacity-100'
+        }`}>
           {/* Sidebar Filters */}
-          <div className="w-64 bg-white dark:bg-dark-card p-6 rounded-lg shadow h-fit">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Filters</h3>
+          {activeTab === 'browse' && (
+            <div className="w-64 bg-white dark:bg-dark-card p-6 rounded-lg shadow h-fit">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Filters</h3>
             
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Category</label>
@@ -295,11 +302,12 @@ const Dashboard = () => {
               className="w-full bg-gray-500 text-white py-2 rounded hover:bg-gray-600"
             >
               Clear Filters
-            </button>
-          </div>
+              </button>
+            </div>
+          )}
 
           {/* Main Content */}
-          <div className="flex-1">
+          <div className={activeTab === 'browse' ? 'flex-1' : 'w-full'}>
             {activeTab === 'browse' && (
               <div className="mb-8">
                 <div className="max-w-2xl mx-auto">
@@ -328,14 +336,7 @@ const Dashboard = () => {
                activeTab === 'completed' ? 'Completed Tasks' : 'Available Tasks'} ({filteredTasks.length})
             </h2>
             
-            <div className={`transition-all duration-300 transform ${
-              isTransitioning 
-                ? slideDirection === 'slide-left' 
-                  ? '-translate-x-full opacity-0' 
-                  : 'translate-x-full opacity-0'
-                : 'translate-x-0 opacity-100'
-            }`}>
-              {Object.entries(tasksByCategory).map(([category, categoryTasks]) => (
+            {Object.entries(tasksByCategory).map(([category, categoryTasks]) => (
                 <div key={category} className="mb-8">
                   {activeTab === 'browse' && filters.category === 'all' && (
                     <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200 capitalize">
@@ -417,7 +418,6 @@ const Dashboard = () => {
                   </div>
                 </div>
               ))}
-            </div>
             
             {filteredTasks.length === 0 && (
               <div className="text-center py-12">
