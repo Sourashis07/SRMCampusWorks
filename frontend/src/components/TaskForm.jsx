@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Navbar from './Navbar';
+import { db } from '../config/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 const TaskForm = () => {
   const [formData, setFormData] = useState({
@@ -26,19 +28,16 @@ const TaskForm = () => {
     try {
       const taskData = {
         ...formData,
-        id: Date.now().toString(),
         budgetMin: parseInt(formData.budgetMin),
         budgetMax: parseInt(formData.budgetMax),
         posterId: user.uid,
         posterName: user.displayName || user.email,
         status: 'OPEN',
-        createdAt: new Date().toISOString(),
+        createdAt: new Date(),
         bids: []
       };
       
-      const existingTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-      existingTasks.push(taskData);
-      localStorage.setItem('tasks', JSON.stringify(existingTasks));
+      await addDoc(collection(db, 'tasks'), taskData);
       
       alert('Task created successfully!');
       navigate('/dashboard');

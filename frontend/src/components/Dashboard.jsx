@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Navbar from './Navbar';
+import { db } from '../config/firebase';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
@@ -19,10 +21,17 @@ const Dashboard = () => {
     loadTasks();
   }, []);
 
-  const loadTasks = () => {
+  const loadTasks = async () => {
     try {
-      const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-      setTasks(savedTasks);
+      const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const tasksData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.() || new Date(),
+        deadline: doc.data().deadline
+      }));
+      setTasks(tasksData);
     } catch (error) {
       console.error('Error loading tasks:', error);
     }
