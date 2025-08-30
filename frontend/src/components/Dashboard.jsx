@@ -272,13 +272,6 @@ const Dashboard = () => {
 
           {/* Main Content */}
           <div className="flex-1">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-              {activeTab === 'mytasks' ? 'My Posted Tasks' : 
-               activeTab === 'proposals' ? 'My Proposals' : 
-               activeTab === 'inprogress' ? 'In Progress Tasks' :
-               activeTab === 'completed' ? 'Completed Tasks' : 'Available Tasks'} ({filteredTasks.length})
-            </h2>
-            
             {activeTab === 'browse' && (
               <div className="mb-8">
                 <div className="max-w-2xl mx-auto">
@@ -299,6 +292,13 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
+            
+            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
+              {activeTab === 'mytasks' ? 'My Posted Tasks' : 
+               activeTab === 'proposals' ? 'My Proposals' : 
+               activeTab === 'inprogress' ? 'In Progress Tasks' :
+               activeTab === 'completed' ? 'Completed Tasks' : 'Available Tasks'} ({filteredTasks.length})
+            </h2>
             
             {Object.entries(tasksByCategory).map(([category, categoryTasks]) => (
               <div key={category} className="mb-8">
