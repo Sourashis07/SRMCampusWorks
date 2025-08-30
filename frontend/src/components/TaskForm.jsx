@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { useCurrentUser } from '../hooks/useCurrentUser';
 import Navbar from './Navbar';
-import { api, API_ENDPOINTS } from '../config/api';
 
 const TaskForm = () => {
   const [formData, setFormData] = useState({
@@ -15,24 +13,34 @@ const TaskForm = () => {
     deadline: ''
   });
   const { user } = useAuth();
-  const { currentUser, loading } = useCurrentUser();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!currentUser) {
-      alert('Please wait for user data to load');
+    if (!user) {
+      alert('Please log in to create a task');
       return;
     }
     
     try {
-      await api.post(API_ENDPOINTS.TASKS, {
+      const taskData = {
         ...formData,
+        id: Date.now().toString(),
         budgetMin: parseInt(formData.budgetMin),
         budgetMax: parseInt(formData.budgetMax),
-        posterId: currentUser.id
-      });
+        posterId: user.uid,
+        posterName: user.displayName || user.email,
+        status: 'OPEN',
+        createdAt: new Date().toISOString(),
+        bids: []
+      };
+      
+      const existingTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+      existingTasks.push(taskData);
+      localStorage.setItem('tasks', JSON.stringify(existingTasks));
+      
+      alert('Task created successfully!');
       navigate('/dashboard');
     } catch (error) {
       console.error('Task creation error:', error);
@@ -47,10 +55,10 @@ const TaskForm = () => {
     });
   };
 
-  if (loading) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center">
-        <div className="text-gray-900 dark:text-white">Loading...</div>
+        <div className="text-gray-900 dark:text-white">Please log in to create a task.</div>
       </div>
     );
   }

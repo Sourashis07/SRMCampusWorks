@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { useCurrentUser } from '../hooks/useCurrentUser';
 import Navbar from './Navbar';
-import { api, API_ENDPOINTS } from '../config/api';
 
 const Profile = () => {
   const { user } = useAuth();
-  const { currentUser, loading } = useCurrentUser();
   const [profile, setProfile] = useState({
     name: '',
     email: '',
@@ -20,29 +17,38 @@ const Profile = () => {
   const [newSkill, setNewSkill] = useState('');
 
   useEffect(() => {
-    if (currentUser) {
-      fetchProfile();
+    if (user) {
+      loadProfile();
     }
-  }, [currentUser]);
+  }, [user]);
 
-  const fetchProfile = async () => {
-    if (!currentUser) return;
-    try {
-      const response = await api.get(`${API_ENDPOINTS.USERS}/${currentUser.id}`);
-      setProfile(response.data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
+  const loadProfile = () => {
+    if (!user) return;
+    const savedProfile = localStorage.getItem(`profile_${user.uid}`);
+    if (savedProfile) {
+      setProfile(JSON.parse(savedProfile));
+    } else {
+      setProfile({
+        name: user.displayName || '',
+        email: user.email || '',
+        department: '',
+        year: '',
+        skills: [],
+        bio: '',
+        phone: '',
+        portfolio: ''
+      });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!currentUser) return;
+    if (!user) return;
     try {
-      await api.put(`${API_ENDPOINTS.USERS}/${currentUser.id}`, profile);
-      alert('Profile updated successfully!');
+      localStorage.setItem(`profile_${user.uid}`, JSON.stringify(profile));
+      alert('Profile saved successfully!');
     } catch (error) {
-      alert('Error updating profile');
+      alert('Error saving profile');
     }
   };
 
@@ -57,9 +63,9 @@ const Profile = () => {
     setProfile({ ...profile, skills: profile.skills.filter(s => s !== skill) });
   };
 
-  if (loading) {
+  if (!user) {
     return <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center">
-      <div className="text-gray-900 dark:text-white">Loading...</div>
+      <div className="text-gray-900 dark:text-white">Please log in to view your profile.</div>
     </div>;
   }
 

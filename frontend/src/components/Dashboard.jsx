@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { useCurrentUser } from '../hooks/useCurrentUser';
 import Navbar from './Navbar';
-import { api, API_ENDPOINTS } from '../config/api';
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
@@ -16,25 +14,24 @@ const Dashboard = () => {
     sortBy: 'newest'
   });
   const { user } = useAuth();
-  const { currentUser } = useCurrentUser();
 
   useEffect(() => {
-    fetchTasks();
+    loadTasks();
   }, []);
 
-  const fetchTasks = async () => {
+  const loadTasks = () => {
     try {
-      const response = await api.get(API_ENDPOINTS.TASKS);
-      setTasks(response.data);
+      const savedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+      setTasks(savedTasks);
     } catch (error) {
-      console.error('Error fetching tasks:', error);
+      console.error('Error loading tasks:', error);
     }
   };
 
   const getFilteredTasks = () => {
     let filtered = activeTab === 'mytasks' 
-      ? tasks.filter(task => task.posterId === currentUser?.id)
-      : tasks.filter(task => task.posterId !== currentUser?.id);
+      ? tasks.filter(task => task.posterId === user?.uid)
+      : tasks.filter(task => task.posterId !== user?.uid);
 
     // Apply filters
     if (filters.category !== 'all') {
