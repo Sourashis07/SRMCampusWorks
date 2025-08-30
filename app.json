@@ -1,0 +1,28 @@
+{
+  "name": "Campus Works Backend",
+  "description": "Backend API for Campus Works freelance platform",
+  "repository": "https://github.com/Sourashis07/SRMCampusWorks",
+  "keywords": ["node", "express", "prisma", "postgresql"],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "env": {
+    "NODE_ENV": {
+      "value": "production"
+    },
+    "JWT_SECRET": {
+      "description": "Secret key for JWT tokens",
+      "generator": "secret"
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql:mini"
+    }
+  ],
+  "scripts": {
+    "postdeploy": "cd backend && npm run db:push"
+  }
+}
