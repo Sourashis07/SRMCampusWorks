@@ -11,6 +11,31 @@ const Dashboard = () => {
   const [submissions, setSubmissions] = useState([]);
   const [activeTab, setActiveTab] = useState('browse');
   const [searchQuery, setSearchQuery] = useState('');
+  const [slideDirection, setSlideDirection] = useState('');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const tabOrder = ['browse', 'mytasks', 'proposals', 'inprogress', 'completed'];
+
+  const handleTabChange = (newTab) => {
+    const currentIndex = tabOrder.indexOf(activeTab);
+    const newIndex = tabOrder.indexOf(newTab);
+    
+    if (newIndex > currentIndex) {
+      setSlideDirection('slide-left');
+    } else if (newIndex < currentIndex) {
+      setSlideDirection('slide-right');
+    }
+    
+    setIsTransitioning(true);
+    
+    setTimeout(() => {
+      setActiveTab(newTab);
+      setTimeout(() => {
+        setIsTransitioning(false);
+        setSlideDirection('');
+      }, 50);
+    }, 150);
+  };
   const [filters, setFilters] = useState({
     category: 'all',
     minBudget: '',
@@ -193,7 +218,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} showTabs={true} />
+      <Navbar activeTab={activeTab} setActiveTab={handleTabChange} showTabs={true} />
 
       <div className="container mx-auto px-6 py-8">
         <div className="flex gap-8">
@@ -303,15 +328,22 @@ const Dashboard = () => {
                activeTab === 'completed' ? 'Completed Tasks' : 'Available Tasks'} ({filteredTasks.length})
             </h2>
             
-            {Object.entries(tasksByCategory).map(([category, categoryTasks]) => (
-              <div key={category} className="mb-8">
-                {activeTab === 'browse' && filters.category === 'all' && (
-                  <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200 capitalize">
-                    {category} ({categoryTasks.length})
-                  </h3>
-                )}
-                
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className={`transition-all duration-300 transform ${
+              isTransitioning 
+                ? slideDirection === 'slide-left' 
+                  ? '-translate-x-full opacity-0' 
+                  : 'translate-x-full opacity-0'
+                : 'translate-x-0 opacity-100'
+            }`}>
+              {Object.entries(tasksByCategory).map(([category, categoryTasks]) => (
+                <div key={category} className="mb-8">
+                  {activeTab === 'browse' && filters.category === 'all' && (
+                    <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200 capitalize">
+                      {category} ({categoryTasks.length})
+                    </h3>
+                  )}
+                  
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {categoryTasks.map((task) => (
                     <div key={task.id} className="bg-white dark:bg-dark-card p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
                       <div className="flex justify-between items-start mb-2">
@@ -382,9 +414,10 @@ const Dashboard = () => {
                       </div>
                     </div>
                   ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
             
             {filteredTasks.length === 0 && (
               <div className="text-center py-12">
