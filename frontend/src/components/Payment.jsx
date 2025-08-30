@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Navbar from './Navbar';
 import { db } from '../config/firebase';
-import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, where, updateDoc } from 'firebase/firestore';
 
 const Payment = () => {
   const { taskId } = useParams();
@@ -86,6 +86,13 @@ const Payment = () => {
 
   const handlePaymentComplete = async () => {
     try {
+      // Update task status to COMPLETED
+      const taskRef = doc(db, 'tasks', taskId);
+      await updateDoc(taskRef, {
+        status: 'COMPLETED',
+        completedAt: new Date()
+      });
+      
       // Send email receipts
       await sendEmailReceipts();
       
@@ -105,7 +112,7 @@ const Payment = () => {
       }, 1000);
     } catch (error) {
       console.error('Error processing payment:', error);
-      alert('Payment completed but there was an issue sending receipts.');
+      alert('Payment completed but there was an issue updating task status.');
       navigate('/dashboard?tab=completed');
     }
   };

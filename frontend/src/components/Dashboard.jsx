@@ -100,7 +100,7 @@ const Dashboard = () => {
     const submittedTaskIds = submissions.map(s => s.taskId);
     
     if (activeTab === 'mytasks') {
-      filtered = tasks.filter(task => task.posterId === user?.uid);
+      filtered = tasks.filter(task => task.posterId === user?.uid && task.status !== 'COMPLETED');
     } else if (activeTab === 'proposals') {
       // Show tasks where user has submitted proposals but not accepted yet
       filtered = tasks.filter(task => 
@@ -112,8 +112,11 @@ const Dashboard = () => {
         acceptedTaskIds.includes(task.id) && !submittedTaskIds.includes(task.id)
       );
     } else if (activeTab === 'completed') {
-      // Show tasks where user has submitted work
-      filtered = tasks.filter(task => submittedTaskIds.includes(task.id));
+      // Show tasks where user has submitted work OR tasks user owns that are completed
+      filtered = tasks.filter(task => 
+        submittedTaskIds.includes(task.id) || 
+        (task.posterId === user?.uid && task.status === 'COMPLETED')
+      );
     } else {
       // Browse: exclude own tasks and tasks user has proposals for
       filtered = tasks.filter(task => 
