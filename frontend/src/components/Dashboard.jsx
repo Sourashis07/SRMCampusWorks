@@ -10,6 +10,7 @@ const Dashboard = () => {
   const [proposals, setProposals] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [activeTab, setActiveTab] = useState('browse');
+  const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
     category: 'all',
     minBudget: '',
@@ -73,23 +74,31 @@ const Dashboard = () => {
 
   const getFilteredTasks = () => {
     let filtered;
+    const proposalTaskIds = proposals.map(p => p.taskId);
+    const acceptedProposals = proposals.filter(p => p.status === 'ACCEPTED');
+    const acceptedTaskIds = acceptedProposals.map(p => p.taskId);
+    const submittedTaskIds = submissions.map(s => s.taskId);
+    
     if (activeTab === 'mytasks') {
       filtered = tasks.filter(task => task.posterId === user?.uid);
     } else if (activeTab === 'proposals') {
-      // Show tasks where user has submitted proposals
-      const proposalTaskIds = proposals.map(p => p.taskId);
-      filtered = tasks.filter(task => proposalTaskIds.includes(task.id));
+      // Show tasks where user has submitted proposals but not accepted yet
+      filtered = tasks.filter(task => 
+        proposalTaskIds.includes(task.id) && !acceptedTaskIds.includes(task.id)
+      );
     } else if (activeTab === 'inprogress') {
-      // Show tasks where user's proposal was accepted
-      const acceptedProposals = proposals.filter(p => p.status === 'ACCEPTED');
-      const acceptedTaskIds = acceptedProposals.map(p => p.taskId);
-      filtered = tasks.filter(task => acceptedTaskIds.includes(task.id));
+      // Show tasks where user's proposal was accepted but not submitted yet
+      filtered = tasks.filter(task => 
+        acceptedTaskIds.includes(task.id) && !submittedTaskIds.includes(task.id)
+      );
     } else if (activeTab === 'completed') {
       // Show tasks where user has submitted work
-      const submittedTaskIds = submissions.map(s => s.taskId);
       filtered = tasks.filter(task => submittedTaskIds.includes(task.id));
     } else {
-      filtered = tasks.filter(task => task.posterId !== user?.uid);
+      // Browse: exclude own tasks and tasks user has proposals for
+      filtered = tasks.filter(task => 
+        task.posterId !== user?.uid && !proposalTaskIds.includes(task.id)
+      );
     }
 
     // Apply filters
@@ -132,6 +141,13 @@ const Dashboard = () => {
       }
     });
 
+    // Apply search filter for browse tab
+    if (activeTab === 'browse' && searchQuery) {
+      filtered = filtered.filter(task => 
+        task.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
     return filtered;
   };
 
@@ -236,12 +252,25 @@ const Dashboard = () => {
 
           {/* Main Content */}
           <div className="flex-1">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-              {activeTab === 'mytasks' ? 'My Posted Tasks' : 
-               activeTab === 'proposals' ? 'My Proposals' : 
-               activeTab === 'inprogress' ? 'In Progress Tasks' :
-               activeTab === 'completed' ? 'Completed Tasks' : 'Available Tasks'} ({filteredTasks.length})
-            </h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {activeTab === 'mytasks' ? 'My Posted Tasks' : 
+                 activeTab === 'proposals' ? 'My Proposals' : 
+                 activeTab === 'inprogress' ? 'In Progress Tasks' :
+                 activeTab === 'completed' ? 'Completed Tasks' : 'Available Tasks'} ({filteredTasks.length})
+              </h2>
+              {activeTab === 'browse' && (
+                <div className="w-80">
+                  <input
+                    type="text"
+                    placeholder="Search tasks by title..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-4 py-2 border rounded-lg dark:bg-dark-bg dark:border-gray-600 dark:text-white"
+                  />
+                </div>
+              )}
+            </div>
             
             {Object.entries(tasksByCategory).map(([category, categoryTasks]) => (
               <div key={category} className="mb-8">

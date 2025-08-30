@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useCurrentUser } from '../hooks/useCurrentUser';
+import { useAuth } from '../hooks/useAuth';
 import Navbar from './Navbar';
-import axios from 'axios';
+import { db } from '../config/firebase';
+import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 
 const Payment = () => {
   const { taskId } = useParams();
   const navigate = useNavigate();
-  const { currentUser } = useCurrentUser();
+  const { user } = useAuth();
   const [task, setTask] = useState(null);
   const [submission, setSubmission] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [acceptedProposal, setAcceptedProposal] = useState(null);
+  const [upiId, setUpiId] = useState('');
+  const [qrCode, setQrCode] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchTaskAndSubmission();
@@ -18,48 +22,55 @@ const Payment = () => {
 
   const fetchTaskAndSubmission = async () => {
     try {
-      const [taskResponse, submissionResponse] = await Promise.all([
-        axios.get(`http://localhost:5000/api/tasks/${taskId}`),
-        axios.get(`http://localhost:5000/api/submissions/task/${taskId}`)
-      ]);
+      // Fetch task
+      const taskRef = doc(db, 'tasks', taskId);
+      const taskSnap = await getDoc(taskRef);
+      if (taskSnap.exists()) {
+        setTask({ id: taskSnap.id, ...taskSnap.data() });
+      }
       
-      setTask(taskResponse.data);
-      setSubmission(submissionResponse.data);
+      // Fetch submission
+      const submissionsQuery = query(collection(db, 'submissions'), where('taskId', '==', taskId));
+      const submissionsSnap = await getDocs(submissionsQuery);
+      if (!submissionsSnap.empty) {
+        setSubmission({ id: submissionsSnap.docs[0].id, ...submissionsSnap.docs[0].data() });
+      }
+      
+      // Fetch accepted proposal
+      const proposalsQuery = query(
+        collection(db, 'proposals'), 
+        where('taskId', '==', taskId),
+        where('status', '==', 'ACCEPTED')
+      );
+      const proposalsSnap = await getDocs(proposalsQuery);
+      if (!proposalsSnap.empty) {
+        setAcceptedProposal({ id: proposalsSnap.docs[0].id, ...proposalsSnap.docs[0].data() });
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
-    }
-  };
-
-  const handlePayment = async () => {
-    setLoading(true);
-    try {
-      const acceptedBid = task.bids.find(bid => bid.status === 'ACCEPTED');
-      
-      // Create payment order
-      const response = await axios.post('http://localhost:5000/api/payments/create-order', {
-        taskId,
-        amount: acceptedBid.amount,
-        payerId: currentUser.id
-      });
-
-      // Simulate payment success (in real app, integrate with Razorpay)
-      alert('Payment successful! Task completed.');
-      
-      // Update task status to completed
-      await axios.put(`http://localhost:5000/api/tasks/${taskId}/status`, {
-        status: 'COMPLETED'
-      });
-      
-      navigate(`/task/${taskId}`);
-    } catch (error) {
-      console.error('Payment error:', error);
-      alert('Payment failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  if (!task || !submission) {
+  const generateQR = () => {
+    if (!upiId || !acceptedProposal) return;
+    
+    const amount = acceptedProposal.amount;
+    const platformFee = Math.round(amount * 0.05);
+    const totalAmount = amount + platformFee;
+    
+    const upiUrl = `upi://pay?pa=${upiId}&pn=Campus Works&am=${totalAmount}&cu=INR&tn=Payment for ${task?.title}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
+    setQrCode(qrUrl);
+  };
+
+  const handlePaymentComplete = () => {
+    alert('Payment completed! The freelancer will be notified.');
+    navigate('/dashboard');
+  };
+
+  if (loading || !task || !submission || !acceptedProposal) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center">
         <div className="text-gray-900 dark:text-white">Loading...</div>
@@ -67,7 +78,9 @@ const Payment = () => {
     );
   }
 
-  const acceptedBid = task.bids.find(bid => bid.status === 'ACCEPTED');
+  const amount = acceptedProposal.amount;
+  const platformFee = Math.round(amount * 0.05);
+  const totalAmount = amount + platformFee;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
@@ -87,19 +100,19 @@ const Payment = () => {
             <div className="border-t pt-4">
               <div className="flex justify-between items-center mb-2">
                 <span>Freelancer:</span>
-                <span className="font-medium">{acceptedBid?.bidder?.name}</span>
+                <span className="font-medium">{acceptedProposal.bidderName}</span>
               </div>
               <div className="flex justify-between items-center mb-2">
                 <span>Agreed Amount:</span>
-                <span className="font-bold text-green-600">₹{acceptedBid?.amount}</span>
+                <span className="font-bold text-green-600">₹{amount}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Platform Fee (5%):</span>
-                <span>₹{Math.round(acceptedBid?.amount * 0.05)}</span>
+                <span>₹{platformFee}</span>
               </div>
               <div className="border-t mt-2 pt-2 flex justify-between items-center font-bold text-lg">
                 <span>Total:</span>
-                <span>₹{acceptedBid?.amount + Math.round(acceptedBid?.amount * 0.05)}</span>
+                <span>₹{totalAmount}</span>
               </div>
             </div>
           </div>
@@ -137,19 +150,51 @@ const Payment = () => {
             )}
           </div>
 
+          <div className="bg-white dark:bg-dark-card p-8 rounded-lg shadow mb-8">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Payment Method</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Enter UPI ID for Payment
+                </label>
+                <input
+                  type="text"
+                  value={upiId}
+                  onChange={(e) => setUpiId(e.target.value)}
+                  placeholder="example@paytm or 9876543210@ybl"
+                  className="w-full px-3 py-2 border rounded-lg dark:bg-dark-bg dark:border-gray-600 dark:text-white"
+                />
+              </div>
+              <button
+                onClick={generateQR}
+                disabled={!upiId}
+                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 font-medium disabled:bg-gray-400"
+              >
+                Generate QR Code
+              </button>
+              
+              {qrCode && (
+                <div className="text-center space-y-4">
+                  <p className="text-gray-600 dark:text-gray-300">Scan QR code to pay ₹{totalAmount}</p>
+                  <img src={qrCode} alt="UPI QR Code" className="mx-auto border rounded-lg" />
+                  <button
+                    onClick={handlePaymentComplete}
+                    className="bg-green-600 text-white py-2 px-6 rounded-lg hover:bg-green-700"
+                  >
+                    Mark as Paid
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="flex space-x-4">
-            <button
-              onClick={handlePayment}
-              disabled={loading}
-              className="flex-1 bg-green-600 text-white py-3 rounded hover:bg-green-700 disabled:opacity-50"
-            >
-              {loading ? 'Processing...' : `Pay ₹${acceptedBid?.amount + Math.round(acceptedBid?.amount * 0.05)}`}
-            </button>
             <button
               onClick={() => navigate(`/task/${taskId}`)}
               className="bg-gray-300 text-gray-700 px-6 py-3 rounded hover:bg-gray-400"
             >
-              Back
+              Back to Task
             </button>
           </div>
         </div>
