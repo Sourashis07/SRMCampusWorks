@@ -1,21 +1,13 @@
 {
-  "name": "srm-campus-works",
+  "name": "campus-works",
   "version": "1.0.0",
-  "description": "A freelance platform for SRM University students",
-  "main": "backend/server.js",
+  "description": "A freelance platform for university students",
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm run dev",
-    "build": "cd frontend && npm run build",
-    "start": "cd backend && npm start",
-    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
-    "deploy": "npm run build"
+    "build": "cd frontend && npm install && npm run build",
+    "dev": "cd frontend && npm run dev",
+    "start": "cd frontend && npm run preview"
   },
   "keywords": ["freelance", "university", "students", "tasks"],
-  "author": "SRM Campus Works Team",
-  "license": "MIT",
-  "devDependencies": {
-    "concurrently": "^8.2.2"
-  }
+  "author": "Campus Works Team",
+  "license": "MIT"
 }
