@@ -10,7 +10,7 @@ const Landing = () => {
       {/* Header */}
       <nav className="px-6 py-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          SRMCampusWorks
+          Campus Works
         </h1>
         <button
           onClick={toggleTheme}
@@ -39,7 +39,7 @@ const Landing = () => {
       {/* Features */}
       <div className="px-6 py-16 max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
-          Why Choose SRMCampusWorks?
+          Why Choose Campus Works?
         </h2>
         <div className="grid md:grid-cols-3 gap-8">
           <div className="text-center p-6">
@@ -94,7 +94,7 @@ const Landing = () => {
 
       {/* Footer */}
       <footer className="px-6 py-8 text-center text-gray-600 dark:text-gray-400">
-        <p>&copy; 2024 SRMCampusWorks. Built for students, by students.</p>
+        <p>&copy; 2024 Campus Works. Built for students, by students.</p>
       </footer>
     </div>
   );

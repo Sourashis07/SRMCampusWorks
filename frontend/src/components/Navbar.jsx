@@ -19,7 +19,7 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = false }) => {
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-8">
           <Link to="/dashboard" className="text-xl font-bold text-gray-900 dark:text-white">
-            SRMCampusWorks
+            Campus Works
           </Link>
           {showTabs && (
             <div className="flex space-x-6">
