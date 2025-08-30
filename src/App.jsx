@@ -1,18 +1,16 @@
 function App() {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Campus Works
-          </h1>
-          <p className="text-xl text-gray-600 mb-8">
-            Your Campus Freelance Platform
-          </p>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-medium">
-            Get Started
-          </button>
-        </div>
+    <div style={{ minHeight: '100vh', backgroundColor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
+        <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#111', marginBottom: '1rem' }}>
+          Campus Works
+        </h1>
+        <p style={{ fontSize: '1.2rem', color: '#666', marginBottom: '2rem' }}>
+          Your Campus Freelance Platform
+        </p>
+        <button style={{ backgroundColor: '#2563eb', color: 'white', padding: '12px 32px', borderRadius: '8px', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>
+          Get Started
+        </button>
       </div>
     </div>
   );
