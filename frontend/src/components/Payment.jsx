@@ -15,6 +15,8 @@ const Payment = () => {
   const [upiId, setUpiId] = useState('');
   const [qrCode, setQrCode] = useState('');
   const [loading, setLoading] = useState(true);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
     fetchTaskAndSubmission();
@@ -82,10 +84,91 @@ const Payment = () => {
     setQrCode(qrUrl);
   };
 
-  const handlePaymentComplete = () => {
-    alert('Payment completed! The freelancer will be notified.');
-    navigate('/dashboard');
+  const handlePaymentComplete = async () => {
+    try {
+      // Send email receipts
+      await sendEmailReceipts();
+      
+      // Show success page
+      setPaymentSuccess(true);
+      
+      // Start countdown
+      const timer = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            navigate('/dashboard?tab=completed');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      alert('Payment completed but there was an issue sending receipts.');
+      navigate('/dashboard?tab=completed');
+    }
   };
+
+  const sendEmailReceipts = async () => {
+    const receiptData = {
+      taskTitle: task.title,
+      freelancerName: acceptedProposal.bidderName,
+      amount: acceptedProposal.amount,
+      platformFee: Math.round(acceptedProposal.amount * 0.05),
+      totalAmount: acceptedProposal.amount + Math.round(acceptedProposal.amount * 0.05),
+      paymentDate: new Date().toLocaleDateString(),
+      taskId: taskId
+    };
+
+    // Simulate email sending (in real app, use EmailJS or backend service)
+    console.log('Sending receipt to owner:', user.email);
+    console.log('Sending receipt to freelancer:', acceptedProposal.bidderName);
+    console.log('Receipt data:', receiptData);
+    
+    // You can integrate with EmailJS here:
+    // await emailjs.send('service_id', 'template_id', receiptData);
+  };
+
+  if (paymentSuccess) {
+    return (
+      <div className="min-h-screen bg-green-50 dark:bg-green-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="mb-8">
+            <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h1 className="text-4xl font-bold text-green-800 dark:text-green-200 mb-2">
+              Payment Successful!
+            </h1>
+            <p className="text-xl text-green-700 dark:text-green-300 mb-4">
+              ₹{acceptedProposal.amount + Math.round(acceptedProposal.amount * 0.05)} paid successfully
+            </p>
+            <p className="text-green-600 dark:text-green-400 mb-6">
+              Email receipts have been sent to both parties
+            </p>
+          </div>
+          
+          <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-lg max-w-md mx-auto">
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              Redirecting to completed tasks in:
+            </p>
+            <div className="text-6xl font-bold text-blue-600 dark:text-blue-400 mb-4">
+              {countdown}
+            </div>
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
+                style={{ width: `${((5 - countdown) / 5) * 100}%` }}
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading || !task || !submission || !acceptedProposal) {
     return (

@@ -21,6 +21,13 @@ const Dashboard = () => {
   const { user } = useAuth();
 
   useEffect(() => {
+    // Check URL for tab parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam) {
+      setActiveTab(tabParam);
+    }
+    
     loadTasks();
     if (user) {
       loadProposals();
