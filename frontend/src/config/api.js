@@ -1,16 +1,8 @@
-// Get API base URL - use environment variable or detect from current location
-const getApiUrl = () => {
-  const envUrl = import.meta.env.VITE_API_URL;
-  const isProd = import.meta.env.PROD;
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  
-  const apiUrl = envUrl || (isProd ? origin : 'http://localhost:5000');
-  console.log('API Configuration:', { envUrl, isProd, origin, apiUrl });
-  
-  return apiUrl;
-};
+// Get API base URL - use environment variable or fallback
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.PROD ? 'https://your-backend-url.herokuapp.com' : 'http://localhost:5000');
 
-export const API_BASE_URL = getApiUrl();
+console.log('API Base URL:', API_BASE_URL);
 
 export const API_ENDPOINTS = {
   AUTH_SYNC: '/api/auth/sync',
