@@ -22,10 +22,10 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = false }) => {
             Campus Works
           </Link>
           {showTabs && (
-            <div className="relative flex space-x-6">
+            <div className="flex space-x-6">
               <button
                 onClick={() => setActiveTab('browse')}
-                className={`font-medium py-2 ${activeTab === 'browse' 
+                className={`font-medium ${activeTab === 'browse' 
                   ? 'text-blue-600 dark:text-blue-400' 
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
               >
@@ -33,7 +33,7 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = false }) => {
               </button>
               <button
                 onClick={() => setActiveTab('mytasks')}
-                className={`font-medium py-2 ${activeTab === 'mytasks' 
+                className={`font-medium ${activeTab === 'mytasks' 
                   ? 'text-blue-600 dark:text-blue-400' 
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
               >
@@ -41,7 +41,7 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = false }) => {
               </button>
               <button
                 onClick={() => setActiveTab('proposals')}
-                className={`font-medium py-2 ${activeTab === 'proposals' 
+                className={`font-medium ${activeTab === 'proposals' 
                   ? 'text-blue-600 dark:text-blue-400' 
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
               >
@@ -49,7 +49,7 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = false }) => {
               </button>
               <button
                 onClick={() => setActiveTab('inprogress')}
-                className={`font-medium py-2 ${activeTab === 'inprogress' 
+                className={`font-medium ${activeTab === 'inprogress' 
                   ? 'text-blue-600 dark:text-blue-400' 
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
               >
@@ -57,29 +57,12 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = false }) => {
               </button>
               <button
                 onClick={() => setActiveTab('completed')}
-                className={`font-medium py-2 ${activeTab === 'completed' 
+                className={`font-medium ${activeTab === 'completed' 
                   ? 'text-blue-600 dark:text-blue-400' 
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
               >
                 Completed
               </button>
-              
-              {/* Sliding blue line indicator */}
-              <div 
-                className="absolute bottom-0 h-0.5 bg-blue-600 dark:bg-blue-400 transition-all duration-300 ease-in-out"
-                style={{
-                  width: activeTab === 'browse' ? '56px' :
-                         activeTab === 'mytasks' ? '68px' :
-                         activeTab === 'proposals' ? '96px' :
-                         activeTab === 'inprogress' ? '84px' :
-                         activeTab === 'completed' ? '80px' : '56px',
-                  left: activeTab === 'browse' ? '0px' :
-                        activeTab === 'mytasks' ? '80px' :
-                        activeTab === 'proposals' ? '172px' :
-                        activeTab === 'inprogress' ? '292px' :
-                        activeTab === 'completed' ? '400px' : '0px'
-                }}
-              />
             </div>
           )}
         </div>

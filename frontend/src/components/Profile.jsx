@@ -80,10 +80,20 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-20 left-10 w-20 h-20 bg-blue-200 dark:bg-blue-800 rounded-full opacity-20 animate-bounce" style={{animationDelay: '0s'}}></div>
+        <div className="absolute top-32 right-20 w-16 h-16 bg-purple-200 dark:bg-purple-800 rounded-full opacity-20 animate-bounce" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-20 left-20 w-24 h-24 bg-green-200 dark:bg-green-800 rounded-full opacity-20 animate-bounce" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-32 right-10 w-12 h-12 bg-yellow-200 dark:bg-yellow-800 rounded-full opacity-20 animate-bounce" style={{animationDelay: '1.5s'}}></div>
+        <div className="absolute top-1/2 left-1/4 w-8 h-8 bg-pink-200 dark:bg-pink-800 rounded-full opacity-20 animate-bounce" style={{animationDelay: '0.5s'}}></div>
+        <div className="absolute top-1/3 right-1/3 w-14 h-14 bg-indigo-200 dark:bg-indigo-800 rounded-full opacity-20 animate-bounce" style={{animationDelay: '2.5s'}}></div>
+      </div>
+      
       <Navbar />
       
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-6 py-8 relative z-10">
         <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">My Profile</h1>
         
         <form onSubmit={handleSubmit} className="bg-white dark:bg-dark-card p-8 rounded-lg shadow max-w-2xl">
