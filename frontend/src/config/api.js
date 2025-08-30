@@ -1,6 +1,16 @@
 // Get API base URL - use environment variable or detect from current location
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.PROD ? window.location.origin : 'http://localhost:5000');
+const getApiUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  const isProd = import.meta.env.PROD;
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  
+  const apiUrl = envUrl || (isProd ? origin : 'http://localhost:5000');
+  console.log('API Configuration:', { envUrl, isProd, origin, apiUrl });
+  
+  return apiUrl;
+};
+
+export const API_BASE_URL = getApiUrl();
 
 export const API_ENDPOINTS = {
   AUTH_SYNC: '/api/auth/sync',

@@ -19,6 +19,8 @@ export const useCurrentUser = () => {
   const syncUser = async () => {
     try {
       console.log('Syncing user:', { uid: user.uid, email: user.email, name: user.displayName });
+      console.log('API Base URL:', API_BASE_URL);
+      console.log('Full API URL:', `${API_BASE_URL}${API_ENDPOINTS.AUTH_SYNC}`);
       
       const response = await api.post(API_ENDPOINTS.AUTH_SYNC, {
         uid: user.uid,
@@ -29,7 +31,12 @@ export const useCurrentUser = () => {
       console.log('User synced successfully:', response.data);
       setCurrentUser(response.data);
     } catch (error) {
-      console.error('Error syncing user:', error.response?.data || error.message);
+      console.error('Error syncing user:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        url: error.config?.url
+      });
       setCurrentUser(null);
     } finally {
       setLoading(false);
