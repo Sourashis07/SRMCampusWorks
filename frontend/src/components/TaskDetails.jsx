@@ -9,12 +9,15 @@ const TaskDetails = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const [task, setTask] = useState(null);
+  const [bids, setBids] = useState([]);
   const [bidAmount, setBidAmount] = useState('');
   const [bidProposal, setBidProposal] = useState('');
   const [submission, setSubmission] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchTask();
+    fetchBids();
     fetchSubmission();
   }, [id]);
 
@@ -24,18 +27,28 @@ const TaskDetails = () => {
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
-        const taskData = { id: docSnap.id, ...docSnap.data() };
-        
-        // Fetch bids for this task
-        const bidsQuery = query(collection(db, 'bids'), where('taskId', '==', id));
-        const bidsSnapshot = await getDocs(bidsQuery);
-        const bidsData = bidsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-        taskData.bids = bidsData;
-        setTask(taskData);
+        setTask({ id: docSnap.id, ...docSnap.data() });
       }
     } catch (error) {
       console.error('Error fetching task:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchBids = async () => {
+    try {
+      const bidsQuery = query(collection(db, 'bids'), where('taskId', '==', id));
+      const bidsSnapshot = await getDocs(bidsQuery);
+      const bidsData = bidsSnapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.() || new Date()
+      }));
+      setBids(bidsData);
+      console.log('Fetched bids:', bidsData);
+    } catch (error) {
+      console.error('Error fetching bids:', error);
     }
   };
 
@@ -68,7 +81,7 @@ const TaskDetails = () => {
       });
       setBidAmount('');
       setBidProposal('');
-      fetchTask();
+      fetchBids();
       alert('Bid submitted successfully!');
     } catch (error) {
       alert('Error submitting bid');
@@ -79,7 +92,7 @@ const TaskDetails = () => {
     try {
       const bidRef = doc(db, 'bids', bidId);
       await updateDoc(bidRef, { status });
-      fetchTask();
+      fetchBids();
       alert(`Bid ${status.toLowerCase()} successfully!`);
     } catch (error) {
       alert('Error updating bid status');
@@ -87,9 +100,9 @@ const TaskDetails = () => {
   };
 
   const isOwner = task?.posterId === user?.uid;
-  const acceptedBid = task?.bids?.find(bid => bid.status === 'ACCEPTED');
+  const acceptedBid = bids.find(bid => bid.status === 'ACCEPTED');
 
-  if (!task) return <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center"><div className="text-gray-900 dark:text-white">Loading...</div></div>;
+  if (loading || !task) return <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center"><div className="text-gray-900 dark:text-white">Loading...</div></div>;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
@@ -122,8 +135,11 @@ const TaskDetails = () => {
           </div>
 
           <div className="mb-8">
-            <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Current Bids ({task.bids?.length || 0})</h3>
-            {task.bids?.map((bid) => (
+            <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Current Bids ({bids.length})</h3>
+            {bids.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400">No bids yet.</p>
+            ) : (
+              bids.map((bid) => (
               <div key={bid.id} className="border dark:border-gray-600 p-4 rounded mb-2 bg-gray-50 dark:bg-dark-bg">
                 <div className="flex justify-between items-start">
                   <div>
@@ -160,7 +176,8 @@ const TaskDetails = () => {
                 </div>
                 <p className="text-gray-600 dark:text-gray-300 mt-2">{bid.proposal}</p>
               </div>
-            ))}
+            ))
+            )}
           </div>
         </div>
 
