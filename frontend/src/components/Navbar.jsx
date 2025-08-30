@@ -39,6 +39,14 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = false }) => {
               >
                 My Tasks
               </button>
+              <button
+                onClick={() => setActiveTab('proposals')}
+                className={`font-medium ${activeTab === 'proposals' 
+                  ? 'text-blue-600 dark:text-blue-400' 
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
+              >
+                My Proposals
+              </button>
             </div>
           )}
         </div>

@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useCurrentUser } from '../hooks/useCurrentUser';
+import { useAuth } from '../hooks/useAuth';
 import Navbar from './Navbar';
-import axios from 'axios';
+import { db } from '../config/firebase';
+import { doc, getDoc, addDoc, collection } from 'firebase/firestore';
 
 const SubmissionForm = () => {
   const { taskId } = useParams();
   const navigate = useNavigate();
-  const { currentUser, loading: userLoading } = useCurrentUser();
+  const { user } = useAuth();
   const [task, setTask] = useState(null);
   const [formData, setFormData] = useState({
     description: '',
@@ -21,8 +22,12 @@ const SubmissionForm = () => {
 
   const fetchTask = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/tasks/${taskId}`);
-      setTask(response.data);
+      const docRef = doc(db, 'tasks', taskId);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        setTask({ id: docSnap.id, ...docSnap.data() });
+      }
     } catch (error) {
       console.error('Error fetching task:', error);
     }
@@ -31,26 +36,26 @@ const SubmissionForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!currentUser) {
-      alert('Please wait for user data to load');
+    if (!user) {
+      alert('Please log in to submit work');
       return;
     }
     
     try {
-      console.log('Submitting:', { ...formData, taskId, submitterId: currentUser.id });
-      
-      const response = await axios.post(`http://localhost:5000/api/submissions`, {
+      await addDoc(collection(db, 'submissions'), {
         ...formData,
         taskId,
-        submitterId: currentUser.id
+        submitterId: user.uid,
+        submitterName: user.displayName || user.email,
+        createdAt: new Date(),
+        status: 'SUBMITTED'
       });
       
-      console.log('Submission successful:', response.data);
       alert('Submission uploaded successfully!');
       navigate(`/task/${taskId}`);
     } catch (error) {
-      console.error('Submission error:', error.response?.data || error.message);
-      alert(`Error uploading submission: ${error.response?.data?.error || error.message}`);
+      console.error('Submission error:', error);
+      alert('Error uploading submission');
     }
   };
 
@@ -61,7 +66,7 @@ const SubmissionForm = () => {
     });
   };
 
-  if (!task || userLoading) return <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center"><div className="text-gray-900 dark:text-white">Loading...</div></div>;
+  if (!task) return <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center"><div className="text-gray-900 dark:text-white">Loading...</div></div>;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">

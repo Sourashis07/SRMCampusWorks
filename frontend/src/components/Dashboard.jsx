@@ -38,9 +38,17 @@ const Dashboard = () => {
   };
 
   const getFilteredTasks = () => {
-    let filtered = activeTab === 'mytasks' 
-      ? tasks.filter(task => task.posterId === user?.uid)
-      : tasks.filter(task => task.posterId !== user?.uid);
+    let filtered;
+    if (activeTab === 'mytasks') {
+      filtered = tasks.filter(task => task.posterId === user?.uid);
+    } else if (activeTab === 'proposals') {
+      // Show tasks where user has submitted proposals
+      filtered = tasks.filter(task => 
+        task.proposals?.some(proposal => proposal.bidderId === user?.uid)
+      );
+    } else {
+      filtered = tasks.filter(task => task.posterId !== user?.uid);
+    }
 
     // Apply filters
     if (filters.category !== 'all') {
@@ -187,7 +195,8 @@ const Dashboard = () => {
           {/* Main Content */}
           <div className="flex-1">
             <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-              {activeTab === 'mytasks' ? 'My Posted Tasks' : 'Available Tasks'} ({filteredTasks.length})
+              {activeTab === 'mytasks' ? 'My Posted Tasks' : 
+               activeTab === 'proposals' ? 'My Proposals' : 'Available Tasks'} ({filteredTasks.length})
             </h2>
             
             {Object.entries(tasksByCategory).map(([category, categoryTasks]) => (
@@ -237,7 +246,7 @@ const Dashboard = () => {
                       
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {task.bids?.length || 0} bids
+                          {task.proposals?.length || 0} proposals
                         </span>
                         <Link
                           to={`/task/${task.id}`}

@@ -9,7 +9,7 @@ const TaskDetails = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const [task, setTask] = useState(null);
-  const [bids, setBids] = useState([]);
+  const [proposals, setProposals] = useState([]);
   const [bidAmount, setBidAmount] = useState('');
   const [bidProposal, setBidProposal] = useState('');
   const [submission, setSubmission] = useState(null);
@@ -17,7 +17,7 @@ const TaskDetails = () => {
 
   useEffect(() => {
     fetchTask();
-    fetchBids();
+    fetchProposals();
     fetchSubmission();
   }, [id]);
 
@@ -36,19 +36,19 @@ const TaskDetails = () => {
     }
   };
 
-  const fetchBids = async () => {
+  const fetchProposals = async () => {
     try {
-      const bidsQuery = query(collection(db, 'bids'), where('taskId', '==', id));
-      const bidsSnapshot = await getDocs(bidsQuery);
-      const bidsData = bidsSnapshot.docs.map(doc => ({ 
+      const proposalsQuery = query(collection(db, 'proposals'), where('taskId', '==', id));
+      const proposalsSnapshot = await getDocs(proposalsQuery);
+      const proposalsData = proposalsSnapshot.docs.map(doc => ({ 
         id: doc.id, 
         ...doc.data(),
         createdAt: doc.data().createdAt?.toDate?.() || new Date()
       }));
-      setBids(bidsData);
-      console.log('Fetched bids:', bidsData);
+      setProposals(proposalsData);
+      console.log('Fetched proposals:', proposalsData);
     } catch (error) {
-      console.error('Error fetching bids:', error);
+      console.error('Error fetching proposals:', error);
     }
   };
 
@@ -70,7 +70,7 @@ const TaskDetails = () => {
     }
     
     try {
-      await addDoc(collection(db, 'bids'), {
+      await addDoc(collection(db, 'proposals'), {
         taskId: id,
         amount: parseInt(bidAmount),
         proposal: bidProposal,
@@ -81,26 +81,26 @@ const TaskDetails = () => {
       });
       setBidAmount('');
       setBidProposal('');
-      fetchBids();
-      alert('Bid submitted successfully!');
+      fetchProposals();
+      alert('Proposal submitted successfully!');
     } catch (error) {
       alert('Error submitting bid');
     }
   };
 
-  const handleBidAction = async (bidId, status) => {
+  const handleProposalAction = async (proposalId, status) => {
     try {
-      const bidRef = doc(db, 'bids', bidId);
-      await updateDoc(bidRef, { status });
-      fetchBids();
-      alert(`Bid ${status.toLowerCase()} successfully!`);
+      const proposalRef = doc(db, 'proposals', proposalId);
+      await updateDoc(proposalRef, { status });
+      fetchProposals();
+      alert(`Proposal ${status.toLowerCase()} successfully!`);
     } catch (error) {
-      alert('Error updating bid status');
+      alert('Error updating proposal status');
     }
   };
 
   const isOwner = task?.posterId === user?.uid;
-  const acceptedBid = bids.find(bid => bid.status === 'ACCEPTED');
+  const acceptedProposal = proposals.find(proposal => proposal.status === 'ACCEPTED');
 
   if (loading || !task) return <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center"><div className="text-gray-900 dark:text-white">Loading...</div></div>;
 
@@ -135,37 +135,37 @@ const TaskDetails = () => {
           </div>
 
           <div className="mb-8">
-            <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Current Bids ({bids.length})</h3>
-            {bids.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400">No bids yet.</p>
+            <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Current Proposals ({proposals.length})</h3>
+            {proposals.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400">No proposals yet.</p>
             ) : (
-              bids.map((bid) => (
-              <div key={bid.id} className="border dark:border-gray-600 p-4 rounded mb-2 bg-gray-50 dark:bg-dark-bg">
+              proposals.map((proposal) => (
+              <div key={proposal.id} className="border dark:border-gray-600 p-4 rounded mb-2 bg-gray-50 dark:bg-dark-bg">
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="font-medium text-gray-900 dark:text-white">
-                      {bid.bidderName || 'Anonymous'}
+                      {proposal.bidderName || 'Anonymous'}
                     </span>
                     <span className={`ml-2 px-2 py-1 rounded text-xs ${
-                      bid.status === 'ACCEPTED' ? 'bg-green-100 text-green-800' :
-                      bid.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                      proposal.status === 'ACCEPTED' ? 'bg-green-100 text-green-800' :
+                      proposal.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
                       'bg-yellow-100 text-yellow-800'
                     }`}>
-                      {bid.status}
+                      {proposal.status}
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-green-600 font-bold text-lg">₹{bid.amount}</span>
-                    {isOwner && bid.status === 'PENDING' && (
+                    <span className="text-green-600 font-bold text-lg">₹{proposal.amount}</span>
+                    {isOwner && proposal.status === 'PENDING' && (
                       <div className="mt-2 space-x-2">
                         <button
-                          onClick={() => handleBidAction(bid.id, 'ACCEPTED')}
+                          onClick={() => handleProposalAction(proposal.id, 'ACCEPTED')}
                           className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
                         >
                           Accept
                         </button>
                         <button
-                          onClick={() => handleBidAction(bid.id, 'REJECTED')}
+                          onClick={() => handleProposalAction(proposal.id, 'REJECTED')}
                           className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
                         >
                           Reject
@@ -174,22 +174,22 @@ const TaskDetails = () => {
                     )}
                   </div>
                 </div>
-                <p className="text-gray-600 dark:text-gray-300 mt-2">{bid.proposal}</p>
+                <p className="text-gray-600 dark:text-gray-300 mt-2">{proposal.proposal}</p>
               </div>
             ))
             )}
           </div>
         </div>
 
-        {acceptedBid && !submission && (
+        {acceptedProposal && !submission && (
           <div className="bg-blue-50 dark:bg-blue-900 p-6 rounded-lg mb-8">
             <h3 className="text-xl font-semibold mb-2 text-blue-900 dark:text-blue-100">
               {isOwner ? 'Waiting for Submission' : 'Submit Your Work'}
             </h3>
             <p className="text-blue-700 dark:text-blue-200">
-              Bid accepted by {acceptedBid.bidderName} for ₹{acceptedBid.amount}
+              Proposal accepted by {acceptedProposal.bidderName} for ₹{acceptedProposal.amount}
             </p>
-            {!isOwner && acceptedBid.bidderId === user?.uid && (
+            {!isOwner && acceptedProposal.bidderId === user?.uid && (
               <Link
                 to={`/submit/${id}`}
                 className="mt-4 inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
@@ -247,7 +247,7 @@ const TaskDetails = () => {
                   to={`/payment/${id}`}
                   className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
                 >
-                  Pay ₹{acceptedBid?.amount}
+                  Pay ₹{acceptedProposal?.amount}
                 </Link>
                 <button className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700">
                   Request Changes
@@ -263,12 +263,12 @@ const TaskDetails = () => {
           </div>
         )}
 
-        {!isOwner && !acceptedBid && !submission && (
+        {!isOwner && !acceptedProposal && !submission && (
           <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow">
-            <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Place Your Bid</h3>
+            <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Submit Your Proposal</h3>
             <form onSubmit={handleBidSubmit}>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Bid Amount (₹)</label>
+                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Proposal Amount (₹)</label>
                 <input
                   type="number"
                   value={bidAmount}
@@ -291,7 +291,7 @@ const TaskDetails = () => {
                 type="submit"
                 className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
               >
-                Submit Bid
+                Submit Proposal
               </button>
             </form>
           </div>
@@ -300,7 +300,7 @@ const TaskDetails = () => {
         {isOwner && (
           <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg">
             <p className="text-gray-600 dark:text-gray-400 text-center">
-              You cannot bid on your own task. Review the bids above and accept the best one.
+              You cannot submit proposal on your own task. Review the proposals above and accept the best one.
             </p>
           </div>
         )}
