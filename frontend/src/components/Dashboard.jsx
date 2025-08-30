@@ -13,6 +13,7 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [slideDirection, setSlideDirection] = useState('');
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const tabOrder = ['browse', 'mytasks', 'proposals', 'inprogress', 'completed'];
 
@@ -238,10 +239,7 @@ const Dashboard = () => {
               : 'translate-x-full opacity-0'
             : 'translate-x-0 opacity-100'
         }`}>
-          {/* Sidebar Filters */}
-          {activeTab === 'browse' && (
-            <div className="w-64 bg-white dark:bg-dark-card p-6 rounded-lg shadow h-fit">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Filters</h3>
+
             
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Category</label>
@@ -311,28 +309,115 @@ const Dashboard = () => {
               onClick={() => setFilters({ category: 'all', minBudget: '', maxBudget: '', duration: 'all', sortBy: 'newest' })}
               className="w-full bg-gray-500 text-white py-2 rounded hover:bg-gray-600"
             >
-              Clear Filters
-              </button>
-            </div>
-          )}
-
           {/* Main Content */}
-          <div className={activeTab === 'browse' ? 'flex-1' : 'w-full'}>
+          <div className="w-full">
             {activeTab === 'browse' && (
               <div className="mb-8">
-                <div className="max-w-2xl mx-auto">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Search tasks by title..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full px-6 py-4 text-lg border-2 border-gray-300 dark:border-gray-600 rounded-full shadow-lg focus:outline-none focus:border-blue-500 dark:bg-dark-bg dark:text-white transition-all duration-200"
-                    />
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                      <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
+                <div className="max-w-4xl mx-auto">
+                  <div className="flex gap-4 items-center">
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        placeholder="Search tasks by title..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full px-6 py-4 text-lg border-2 border-gray-300 dark:border-gray-600 rounded-full shadow-lg focus:outline-none focus:border-blue-500 dark:bg-dark-bg dark:text-white transition-all duration-200"
+                      />
+                      <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </div>
+                    </div>
+                    
+                    {/* Filter Button */}
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className="p-4 bg-white dark:bg-dark-card border-2 border-gray-300 dark:border-gray-600 rounded-full shadow-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
+                      >
+                        <svg className="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                      </button>
+                      
+                      {/* Filter Dropdown */}
+                      {showFilters && (
+                        <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-dark-card p-6 rounded-lg shadow-xl border dark:border-gray-600 z-50">
+                          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Filters</h3>
+                          
+                          <div className="mb-4">
+                            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Category</label>
+                            <select
+                              value={filters.category}
+                              onChange={(e) => setFilters({...filters, category: e.target.value})}
+                              className="w-full px-3 py-2 border rounded dark:bg-dark-bg dark:border-gray-600 dark:text-white"
+                            >
+                              <option value="all">All Categories</option>
+                              <option value="assignment">Assignment</option>
+                              <option value="presentation">Presentation</option>
+                              <option value="project">Project</option>
+                              <option value="other">Other</option>
+                            </select>
+                          </div>
+
+                          <div className="mb-4">
+                            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Budget Range</label>
+                            <div className="flex gap-2">
+                              <input
+                                type="number"
+                                placeholder="Min"
+                                value={filters.minBudget}
+                                onChange={(e) => setFilters({...filters, minBudget: e.target.value})}
+                                className="w-full px-3 py-2 border rounded dark:bg-dark-bg dark:border-gray-600 dark:text-white"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Max"
+                                value={filters.maxBudget}
+                                onChange={(e) => setFilters({...filters, maxBudget: e.target.value})}
+                                className="w-full px-3 py-2 border rounded dark:bg-dark-bg dark:border-gray-600 dark:text-white"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="mb-4">
+                            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Duration</label>
+                            <select
+                              value={filters.duration}
+                              onChange={(e) => setFilters({...filters, duration: e.target.value})}
+                              className="w-full px-3 py-2 border rounded dark:bg-dark-bg dark:border-gray-600 dark:text-white"
+                            >
+                              <option value="all">All Durations</option>
+                              <option value="urgent">Urgent (≤3 days)</option>
+                              <option value="week">This Week (≤7 days)</option>
+                              <option value="month">This Month (≤30 days)</option>
+                            </select>
+                          </div>
+
+                          <div className="mb-4">
+                            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Sort By</label>
+                            <select
+                              value={filters.sortBy}
+                              onChange={(e) => setFilters({...filters, sortBy: e.target.value})}
+                              className="w-full px-3 py-2 border rounded dark:bg-dark-bg dark:border-gray-600 dark:text-white"
+                            >
+                              <option value="newest">Newest First</option>
+                              <option value="oldest">Oldest First</option>
+                              <option value="budget-high">Highest Budget</option>
+                              <option value="budget-low">Lowest Budget</option>
+                              <option value="deadline">Deadline Soon</option>
+                            </select>
+                          </div>
+
+                          <button
+                            onClick={() => setFilters({ category: 'all', minBudget: '', maxBudget: '', duration: 'all', sortBy: 'newest' })}
+                            className="w-full bg-gray-500 text-white py-2 rounded hover:bg-gray-600"
+                          >
+                            Clear Filters
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
