@@ -28,17 +28,55 @@ const io = new Server(server, {
 
 const prisma = new PrismaClient();
 
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? true 
-    : ["http://localhost:5173"],
-  credentials: true
-}));
+// CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, etc.)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://srm-campus-works.vercel.app',
+      /\.vercel\.app$/
+    ];
+    
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (typeof allowed === 'string') {
+        return origin === allowed;
+      }
+      return allowed.test(origin);
+    });
+    
+    if (isAllowed || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(null, true); // Allow all for now
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
+
+// Logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
 
 // Health check endpoint
 app.get('/', (req, res) => {
-  res.json({ status: 'OK', message: 'Campus Works API is running' });
+  res.json({ 
+    status: 'OK', 
+    message: 'Campus Works API is running',
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV
+  });
 });
 
 app.get('/health', (req, res) => {
