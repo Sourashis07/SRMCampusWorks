@@ -252,25 +252,33 @@ const Dashboard = () => {
 
           {/* Main Content */}
           <div className="flex-1">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {activeTab === 'mytasks' ? 'My Posted Tasks' : 
-                 activeTab === 'proposals' ? 'My Proposals' : 
-                 activeTab === 'inprogress' ? 'In Progress Tasks' :
-                 activeTab === 'completed' ? 'Completed Tasks' : 'Available Tasks'} ({filteredTasks.length})
-              </h2>
-              {activeTab === 'browse' && (
-                <div className="w-80">
-                  <input
-                    type="text"
-                    placeholder="Search tasks by title..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-4 py-2 border rounded-lg dark:bg-dark-bg dark:border-gray-600 dark:text-white"
-                  />
+            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
+              {activeTab === 'mytasks' ? 'My Posted Tasks' : 
+               activeTab === 'proposals' ? 'My Proposals' : 
+               activeTab === 'inprogress' ? 'In Progress Tasks' :
+               activeTab === 'completed' ? 'Completed Tasks' : 'Available Tasks'} ({filteredTasks.length})
+            </h2>
+            
+            {activeTab === 'browse' && (
+              <div className="mb-8">
+                <div className="max-w-2xl mx-auto">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search tasks by title..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full px-6 py-4 text-lg border-2 border-gray-300 dark:border-gray-600 rounded-full shadow-lg focus:outline-none focus:border-blue-500 dark:bg-dark-bg dark:text-white transition-all duration-200"
+                    />
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                      <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
             
             {Object.entries(tasksByCategory).map(([category, categoryTasks]) => (
               <div key={category} className="mb-8">

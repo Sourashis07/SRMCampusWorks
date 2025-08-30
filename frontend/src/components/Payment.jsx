@@ -44,7 +44,24 @@ const Payment = () => {
       );
       const proposalsSnap = await getDocs(proposalsQuery);
       if (!proposalsSnap.empty) {
-        setAcceptedProposal({ id: proposalsSnap.docs[0].id, ...proposalsSnap.docs[0].data() });
+        const proposalData = { id: proposalsSnap.docs[0].id, ...proposalsSnap.docs[0].data() };
+        setAcceptedProposal(proposalData);
+        
+        // Fetch freelancer's UPI ID
+        const freelancerRef = doc(db, 'profiles', proposalData.bidderId);
+        const freelancerSnap = await getDoc(freelancerRef);
+        if (freelancerSnap.exists() && freelancerSnap.data().upiId) {
+          setUpiId(freelancerSnap.data().upiId);
+          // Auto-generate QR if UPI ID exists
+          setTimeout(() => {
+            const amount = proposalData.amount;
+            const platformFee = Math.round(amount * 0.05);
+            const totalAmount = amount + platformFee;
+            const upiUrl = `upi://pay?pa=${freelancerSnap.data().upiId}&pn=Campus Works&am=${totalAmount}&cu=INR&tn=Payment for ${task?.title}`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
+            setQrCode(qrUrl);
+          }, 500);
+        }
       }
     } catch (error) {
       console.error('Error fetching data:', error);

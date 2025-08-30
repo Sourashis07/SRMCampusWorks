@@ -14,7 +14,8 @@ const Profile = () => {
     skills: [],
     bio: '',
     phone: '',
-    portfolio: ''
+    portfolio: '',
+    upiId: ''
   });
   const [newSkill, setNewSkill] = useState('');
 
@@ -41,7 +42,8 @@ const Profile = () => {
           skills: [],
           bio: '',
           phone: '',
-          portfolio: ''
+          portfolio: '',
+          upiId: ''
         });
       }
     } catch (error) {
@@ -154,6 +156,21 @@ const Profile = () => {
                 onChange={(e) => setProfile({ ...profile, portfolio: e.target.value })}
                 className="w-full px-3 py-2 border rounded dark:bg-dark-bg dark:border-gray-600 dark:text-white"
               />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">UPI ID *</label>
+              <input
+                type="text"
+                value={profile.upiId}
+                onChange={(e) => setProfile({ ...profile, upiId: e.target.value })}
+                className="w-full px-3 py-2 border rounded dark:bg-dark-bg dark:border-gray-600 dark:text-white"
+                placeholder="yourname@paytm or 9876543210@ybl"
+                required
+              />
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                For receiving payments
+              </p>
             </div>
           </div>
           
