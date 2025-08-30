@@ -150,7 +150,7 @@ const Landing = () => {
 
       {/* Footer */}
       <footer className="px-6 py-8 text-center text-gray-600 dark:text-gray-400">
-        <p>&copy; 2024 Campus Works. Built for students, by students.</p>
+        <p>&copy; 2025 Campus Works. Built for students, by students.</p>
       </footer>
     </div>
   );
