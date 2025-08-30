@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Navbar from './Navbar';
 import { db } from '../config/firebase';
-import { doc, getDoc, collection, addDoc, getDocs, query, where } from 'firebase/firestore';
+import { doc, getDoc, collection, addDoc, getDocs, query, where, updateDoc } from 'firebase/firestore';
 
 const TaskDetails = () => {
   const { id } = useParams();
@@ -77,7 +77,8 @@ const TaskDetails = () => {
 
   const handleBidAction = async (bidId, status) => {
     try {
-      await api.put(`${API_ENDPOINTS.BIDS}/${bidId}/status`, { status });
+      const bidRef = doc(db, 'bids', bidId);
+      await updateDoc(bidRef, { status });
       fetchTask();
       alert(`Bid ${status.toLowerCase()} successfully!`);
     } catch (error) {
@@ -126,12 +127,9 @@ const TaskDetails = () => {
               <div key={bid.id} className="border dark:border-gray-600 p-4 rounded mb-2 bg-gray-50 dark:bg-dark-bg">
                 <div className="flex justify-between items-start">
                   <div>
-                    <Link 
-                      to={`/profile/${bid.bidderId}`}
-                      className="font-medium text-blue-600 hover:text-blue-800"
-                    >
+                    <span className="font-medium text-gray-900 dark:text-white">
                       {bid.bidderName || 'Anonymous'}
-                    </Link>
+                    </span>
                     <span className={`ml-2 px-2 py-1 rounded text-xs ${
                       bid.status === 'ACCEPTED' ? 'bg-green-100 text-green-800' :
                       bid.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
