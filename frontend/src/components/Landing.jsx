@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { Moon, Sun, Users, Shield, Zap, Star } from 'lucide-react';
+import { Moon, Sun, Users, Shield, Zap } from 'lucide-react';
 
 const Landing = () => {
   const { isDark, toggleTheme } = useTheme();
