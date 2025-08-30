@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id
+  email       String   @unique
+  name        String
+  department  String?
+  year        Int?
+  skills      String[]
+  bio         String?
+  phone       String?
+  portfolio   String?
+  rating      Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  postedTasks Task[]   @relation("TaskPoster")
+  bids        Bid[]
+  groupMembers GroupMember[]
+  transactions Transaction[]
+  reviews     Review[]
+  comments    Comment[]
+  submissions Submission[]
+
+  @@map("users")
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String
+  budgetMin   Int
+  budgetMax   Int
+  deadline    DateTime
+  status      TaskStatus @default(OPEN)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  posterId    String
+  poster      User     @relation("TaskPoster", fields: [posterId], references: [id])
+  
+  bids        Bid[]
+  transactions Transaction[]
+  reviews     Review[]
+  comments    Comment[]
+  submission  Submission?
+
+  @@map("tasks")
+}
+
+model Bid {
+  id          String   @id @default(cuid())
+  amount      Int
+  proposal    String
+  status      BidStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id])
+  
+  bidderId    String?
+  bidder      User?    @relation(fields: [bidderId], references: [id])
+  
+  groupId     String?
+  group       Group?   @relation(fields: [groupId], references: [id])
+
+  @@map("bids")
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+
+  members     GroupMember[]
+  bids        Bid[]
+
+  @@map("groups")
+}
+
+model GroupMember {
+  id       String @id @default(cuid())
+  role     String @default("member")
+
+  userId   String
+  user     User   @relation(fields: [userId], references: [id])
+  
+  groupId  String
+  group    Group  @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId])
+  @@map("group_members")
+}
+
+model Transaction {
+  id              String @id @default(cuid())
+  razorpayOrderId String @unique
+  amount          Int
+  status          TransactionStatus @default(PENDING)
+  createdAt       DateTime @default(now())
+
+  taskId          String
+  task            Task   @relation(fields: [taskId], references: [id])
+  
+  payerId         String
+  payer           User   @relation(fields: [payerId], references: [id])
+
+  @@map("transactions")
+}
+
+model Review {
+  id        String @id @default(cuid())
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  taskId    String
+  task      Task   @relation(fields: [taskId], references: [id])
+  
+  reviewerId String
+  reviewer  User   @relation(fields: [reviewerId], references: [id])
+
+  @@map("reviews")
+}
+
+model Comment {
+  id        String @id @default(cuid())
+  comment   String
+  createdAt DateTime @default(now())
+
+  taskId    String
+  task      Task   @relation(fields: [taskId], references: [id])
+  
+  userId    String
+  user      User   @relation(fields: [userId], references: [id])
+
+  @@map("comments")
+}
+
+model Submission {
+  id          String @id @default(cuid())
+  description String
+  fileUrl     String?
+  linkUrl     String?
+  status      SubmissionStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+
+  taskId      String @unique
+  task        Task   @relation(fields: [taskId], references: [id])
+  
+  submitterId String
+  submitter   User   @relation(fields: [submitterId], references: [id])
+
+  @@map("submissions")
+}
+
+enum TaskStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum BidStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
