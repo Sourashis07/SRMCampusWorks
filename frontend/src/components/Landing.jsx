@@ -72,22 +72,55 @@ const Landing = () => {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="bg-gray-50 dark:bg-dark-card px-6 py-16">
-        <div className="max-w-4xl mx-auto grid md:grid-cols-3 gap-8 text-center">
-          <div>
-            <div className="text-3xl font-bold text-blue-600 mb-2">500+</div>
-            <div className="text-gray-600 dark:text-gray-300">Active Students</div>
-          </div>
-          <div>
-            <div className="text-3xl font-bold text-blue-600 mb-2">1000+</div>
-            <div className="text-gray-600 dark:text-gray-300">Projects Completed</div>
-          </div>
-          <div>
-            <div className="text-3xl font-bold text-blue-600 mb-2">4.8</div>
-            <div className="text-gray-600 dark:text-gray-300 flex items-center justify-center gap-1">
-              <Star className="w-4 h-4 fill-current" /> Average Rating
+      {/* How It Works */}
+      <div className="px-6 py-16 max-w-6xl mx-auto">
+        <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
+          How Campus Works Functions
+        </h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="text-center p-6">
+            <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+              1
             </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              Post Your Task
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Create detailed task descriptions with budget and deadline
+            </p>
+          </div>
+          <div className="text-center p-6">
+            <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+              2
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              Receive Bids
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Students submit proposals with their rates and approach
+            </p>
+          </div>
+          <div className="text-center p-6">
+            <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+              3
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              Accept & Collaborate
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Choose the best bid and work together through our platform
+            </p>
+          </div>
+          <div className="text-center p-6">
+            <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+              4
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              Pay Securely
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Complete payment after work submission and approval
+            </p>
           </div>
         </div>
       </div>
