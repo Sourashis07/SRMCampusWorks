@@ -232,83 +232,13 @@ const Dashboard = () => {
       <Navbar activeTab={activeTab} setActiveTab={handleTabChange} showTabs={true} />
 
       <div className="container mx-auto px-6 py-8 relative z-10">
-        <div className={`flex gap-8 transition-all duration-300 transform ${
+        <div className={`transition-all duration-300 transform ${
           isTransitioning 
             ? slideDirection === 'slide-left' 
               ? '-translate-x-full opacity-0' 
               : 'translate-x-full opacity-0'
             : 'translate-x-0 opacity-100'
         }`}>
-
-            
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Category</label>
-              <select
-                value={filters.category}
-                onChange={(e) => setFilters({...filters, category: e.target.value})}
-                className="w-full px-3 py-2 border rounded dark:bg-dark-bg dark:border-gray-600 dark:text-white"
-              >
-                <option value="all">All Categories</option>
-                <option value="assignment">Assignment</option>
-                <option value="presentation">Presentation</option>
-                <option value="project">Project</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Budget Range</label>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={filters.minBudget}
-                  onChange={(e) => setFilters({...filters, minBudget: e.target.value})}
-                  className="w-full px-3 py-2 border rounded dark:bg-dark-bg dark:border-gray-600 dark:text-white"
-                />
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={filters.maxBudget}
-                  onChange={(e) => setFilters({...filters, maxBudget: e.target.value})}
-                  className="w-full px-3 py-2 border rounded dark:bg-dark-bg dark:border-gray-600 dark:text-white"
-                />
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Duration</label>
-              <select
-                value={filters.duration}
-                onChange={(e) => setFilters({...filters, duration: e.target.value})}
-                className="w-full px-3 py-2 border rounded dark:bg-dark-bg dark:border-gray-600 dark:text-white"
-              >
-                <option value="all">All Durations</option>
-                <option value="urgent">Urgent (≤3 days)</option>
-                <option value="week">This Week (≤7 days)</option>
-                <option value="month">This Month (≤30 days)</option>
-              </select>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Sort By</label>
-              <select
-                value={filters.sortBy}
-                onChange={(e) => setFilters({...filters, sortBy: e.target.value})}
-                className="w-full px-3 py-2 border rounded dark:bg-dark-bg dark:border-gray-600 dark:text-white"
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="budget-high">Highest Budget</option>
-                <option value="budget-low">Lowest Budget</option>
-                <option value="deadline">Deadline Soon</option>
-              </select>
-            </div>
-
-            <button
-              onClick={() => setFilters({ category: 'all', minBudget: '', maxBudget: '', duration: 'all', sortBy: 'newest' })}
-              className="w-full bg-gray-500 text-white py-2 rounded hover:bg-gray-600"
-            >
           {/* Main Content */}
           <div className="w-full">
             {activeTab === 'browse' && (
