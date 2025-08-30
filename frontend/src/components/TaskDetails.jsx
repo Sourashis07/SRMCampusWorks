@@ -137,6 +137,20 @@ const TaskDetails = () => {
               <span>{task.posterName}</span>
             </div>
           </div>
+          
+          {task.fileLink && (
+            <div className="mb-6">
+              <span className="font-medium">File Link: </span>
+              <a 
+                href={task.fileLink} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 underline break-all"
+              >
+                {task.fileLink}
+              </a>
+            </div>
+          )}
 
           <div className="mb-8">
             <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Current Proposals ({proposals.length})</h3>
