@@ -54,8 +54,12 @@ const TaskDetails = () => {
 
   const fetchSubmission = async () => {
     try {
-      const response = await api.get(`${API_ENDPOINTS.SUBMISSIONS}/task/${id}`);
-      setSubmission(response.data);
+      const submissionsQuery = query(collection(db, 'submissions'), where('taskId', '==', id));
+      const submissionsSnapshot = await getDocs(submissionsQuery);
+      if (!submissionsSnapshot.empty) {
+        const submissionData = submissionsSnapshot.docs[0].data();
+        setSubmission({ id: submissionsSnapshot.docs[0].id, ...submissionData });
+      }
     } catch (error) {
       console.error('Error fetching submission:', error);
     }

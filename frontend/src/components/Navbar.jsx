@@ -47,6 +47,22 @@ const Navbar = ({ activeTab, setActiveTab, showTabs = false }) => {
               >
                 My Proposals
               </button>
+              <button
+                onClick={() => setActiveTab('inprogress')}
+                className={`font-medium ${activeTab === 'inprogress' 
+                  ? 'text-blue-600 dark:text-blue-400' 
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
+              >
+                In Progress
+              </button>
+              <button
+                onClick={() => setActiveTab('completed')}
+                className={`font-medium ${activeTab === 'completed' 
+                  ? 'text-blue-600 dark:text-blue-400' 
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
+              >
+                Completed
+              </button>
             </div>
           )}
         </div>

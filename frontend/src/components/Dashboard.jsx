@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Navbar from './Navbar';
 import { db } from '../config/firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
+  const [proposals, setProposals] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
   const [activeTab, setActiveTab] = useState('browse');
   const [filters, setFilters] = useState({
     category: 'all',
@@ -19,7 +21,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadTasks();
-  }, []);
+    if (user) {
+      loadProposals();
+      loadSubmissions();
+    }
+  }, [user]);
 
   const loadTasks = async () => {
     try {
@@ -37,15 +43,51 @@ const Dashboard = () => {
     }
   };
 
+  const loadProposals = async () => {
+    try {
+      const q = query(collection(db, 'proposals'), where('bidderId', '==', user.uid));
+      const querySnapshot = await getDocs(q);
+      const proposalsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setProposals(proposalsData);
+    } catch (error) {
+      console.error('Error loading proposals:', error);
+    }
+  };
+
+  const loadSubmissions = async () => {
+    try {
+      const q = query(collection(db, 'submissions'), where('submitterId', '==', user.uid));
+      const querySnapshot = await getDocs(q);
+      const submissionsData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setSubmissions(submissionsData);
+    } catch (error) {
+      console.error('Error loading submissions:', error);
+    }
+  };
+
   const getFilteredTasks = () => {
     let filtered;
     if (activeTab === 'mytasks') {
       filtered = tasks.filter(task => task.posterId === user?.uid);
     } else if (activeTab === 'proposals') {
       // Show tasks where user has submitted proposals
-      filtered = tasks.filter(task => 
-        task.proposals?.some(proposal => proposal.bidderId === user?.uid)
-      );
+      const proposalTaskIds = proposals.map(p => p.taskId);
+      filtered = tasks.filter(task => proposalTaskIds.includes(task.id));
+    } else if (activeTab === 'inprogress') {
+      // Show tasks where user's proposal was accepted
+      const acceptedProposals = proposals.filter(p => p.status === 'ACCEPTED');
+      const acceptedTaskIds = acceptedProposals.map(p => p.taskId);
+      filtered = tasks.filter(task => acceptedTaskIds.includes(task.id));
+    } else if (activeTab === 'completed') {
+      // Show tasks where user has submitted work
+      const submittedTaskIds = submissions.map(s => s.taskId);
+      filtered = tasks.filter(task => submittedTaskIds.includes(task.id));
     } else {
       filtered = tasks.filter(task => task.posterId !== user?.uid);
     }
@@ -196,7 +238,9 @@ const Dashboard = () => {
           <div className="flex-1">
             <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
               {activeTab === 'mytasks' ? 'My Posted Tasks' : 
-               activeTab === 'proposals' ? 'My Proposals' : 'Available Tasks'} ({filteredTasks.length})
+               activeTab === 'proposals' ? 'My Proposals' : 
+               activeTab === 'inprogress' ? 'In Progress Tasks' :
+               activeTab === 'completed' ? 'Completed Tasks' : 'Available Tasks'} ({filteredTasks.length})
             </h2>
             
             {Object.entries(tasksByCategory).map(([category, categoryTasks]) => (
@@ -245,9 +289,23 @@ const Dashboard = () => {
                       </div>
                       
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {task.proposals?.length || 0} proposals
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            {task.proposals?.length || 0} proposals
+                          </span>
+                          {activeTab === 'proposals' && (() => {
+                            const userProposal = proposals.find(p => p.taskId === task.id);
+                            return userProposal ? (
+                              <span className={`text-xs px-2 py-1 rounded mt-1 ${
+                                userProposal.status === 'ACCEPTED' ? 'bg-green-100 text-green-800' :
+                                userProposal.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                                'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {userProposal.status}
+                              </span>
+                            ) : null;
+                          })()}
+                        </div>
                         <Link
                           to={`/task/${task.id}`}
                           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"
