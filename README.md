@@ -41,24 +41,17 @@ ScreenShots:
 ### Frontend
 - React 18
 - Vite
-- Tailwind CSS
 - Firebase Authentication
-- Axios
 - React Router
 
 ### Backend
 - Node.js
-- Express.js
-- Prisma ORM
-- PostgreSQL
-- Socket.io
 - Firebase Admin
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js 18+
-- PostgreSQL database
 - Firebase project
 
 ### Installation
