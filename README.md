@@ -25,7 +25,7 @@ Deployment Link: https://srm-campus-works.vercel.app/
 - **Dark Mode**: Full dark/light theme support
 
 
-ScreenShots:
+##ScreenShots:
 <img width="1919" height="940" alt="image" src="https://github.com/user-attachments/assets/4f1c10db-01f0-42b0-8c79-42ffce8866c9" />
 <img width="1919" height="935" alt="image" src="https://github.com/user-attachments/assets/096c393b-2593-43c0-9eba-32409d5a1399" />
 <img width="1919" height="940" alt="image" src="https://github.com/user-attachments/assets/40c9f68a-ebb4-4035-bd8a-0c3d4883d167" />
