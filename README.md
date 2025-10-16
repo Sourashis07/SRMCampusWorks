@@ -2,6 +2,8 @@
 
 A freelance platform for SRM University students to post and complete academic tasks.
 
+Deployment Link: https://srm-campus-works.vercel.app/
+
 ## Features
 
 - **Task Management**: Post and browse academic tasks
@@ -11,6 +13,11 @@ A freelance platform for SRM University students to post and complete academic t
 - **Profile Management**: Complete user profiles with skills and portfolio
 - **Advanced Filters**: Filter tasks by category, budget, duration
 - **Dark Mode**: Full dark/light theme support
+
+
+ScreenShots:
+<img width="1919" height="940" alt="image" src="https://github.com/user-attachments/assets/4f1c10db-01f0-42b0-8c79-42ffce8866c9" />
+
 
 ## Tech Stack
 
