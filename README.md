@@ -4,6 +4,16 @@ A freelance platform for SRM University students to post and complete academic t
 
 Deployment Link: https://srm-campus-works.vercel.app/
 
+##Working:
+- A student(Admin) Post some work with the information and the budget of his work
+- All other students(Bidders) see the posted task and then can bid on how much they want to work on
+- Now the Admin can chose the best bid
+- Bidder gets notified
+- Bidder submits his work
+- Admin has the access to accept or reject work after reviwing
+- when admin accepts, the bidder's Qr comes up where the admin has to pay the predetermined amount
+- The task closes.
+  
 ## Features
 
 - **Task Management**: Post and browse academic tasks
@@ -17,6 +27,13 @@ Deployment Link: https://srm-campus-works.vercel.app/
 
 ScreenShots:
 <img width="1919" height="940" alt="image" src="https://github.com/user-attachments/assets/4f1c10db-01f0-42b0-8c79-42ffce8866c9" />
+<img width="1919" height="940" alt="image" src="https://github.com/user-attachments/assets/40c9f68a-ebb4-4035-bd8a-0c3d4883d167" />
+<img width="1919" height="938" alt="image" src="https://github.com/user-attachments/assets/a31ac146-06b2-447e-bb47-eca69b0bbd13" />
+<img width="1919" height="938" alt="image" src="https://github.com/user-attachments/assets/d796e376-400c-4a06-a679-91a1eb74f01e" />
+<img width="1919" height="942" alt="image" src="https://github.com/user-attachments/assets/aff86940-24cb-444b-b1b6-f94b0e74abaf" />
+
+
+
 
 
 ## Tech Stack
