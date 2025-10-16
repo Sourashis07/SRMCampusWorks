@@ -27,10 +27,13 @@ Deployment Link: https://srm-campus-works.vercel.app/
 
 ScreenShots:
 <img width="1919" height="940" alt="image" src="https://github.com/user-attachments/assets/4f1c10db-01f0-42b0-8c79-42ffce8866c9" />
+<img width="1919" height="935" alt="image" src="https://github.com/user-attachments/assets/096c393b-2593-43c0-9eba-32409d5a1399" />
 <img width="1919" height="940" alt="image" src="https://github.com/user-attachments/assets/40c9f68a-ebb4-4035-bd8a-0c3d4883d167" />
 <img width="1919" height="938" alt="image" src="https://github.com/user-attachments/assets/a31ac146-06b2-447e-bb47-eca69b0bbd13" />
 <img width="1919" height="938" alt="image" src="https://github.com/user-attachments/assets/d796e376-400c-4a06-a679-91a1eb74f01e" />
 <img width="1919" height="942" alt="image" src="https://github.com/user-attachments/assets/aff86940-24cb-444b-b1b6-f94b0e74abaf" />
+<img width="1919" height="936" alt="image" src="https://github.com/user-attachments/assets/e6626985-f04c-4785-af44-c8cd1c1de8fd" />
+
 
 
 
