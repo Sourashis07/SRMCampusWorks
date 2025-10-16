@@ -52,6 +52,8 @@ ScreenShots:
 
 ### Backend
 - Node.js
+- Prisma
+- cors
 - Firebase Admin
 
 ## Getting Started
